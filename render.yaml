@@ -1,0 +1,24 @@
+# Render Blueprint: free test hosting for the Speow! API.
+# Database: a free Neon PostgreSQL — paste its connection string as DATABASE_URL
+# when Render asks (it is never committed).
+services:
+  - type: web
+    name: speow-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: claude/sleepy-wozniak-nmu6dv
+    dockerfilePath: ./apps/server/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - apps/server/**
+        - packages/shared/**
+        - package-lock.json
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: PUSH_PROVIDER
+        value: log

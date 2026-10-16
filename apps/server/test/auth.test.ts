@@ -151,5 +151,6 @@ describe('hosting config', () => {
     const { loadConfig } = await import('../src/config');
     expect(loadConfig({ DATABASE_URL: 'x', RAILWAY_PUBLIC_DOMAIN: 'speow.up.railway.app' }).publicUrl).toBe('https://speow.up.railway.app');
     expect(loadConfig({ DATABASE_URL: 'x', RAILWAY_PUBLIC_DOMAIN: 'a.b', PUBLIC_URL: 'https://speow.app' }).publicUrl).toBe('https://speow.app');
+    expect(loadConfig({ DATABASE_URL: 'x', RENDER_EXTERNAL_URL: 'https://speow-api.onrender.com' }).publicUrl).toBe('https://speow-api.onrender.com');
   });
 });

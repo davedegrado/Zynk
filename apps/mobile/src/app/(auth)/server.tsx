@@ -16,10 +16,11 @@ export default function ServerScreen() {
       return null;
     }
     setBusy(true);
-    setStatus(null);
+    setStatus({ ok: true, message: 'Connecting… a sleeping free server can take up to a minute to wake up.' });
     try {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 6000);
+      // Free hosting sleeps when idle; waking up can take about a minute.
+      const timer = setTimeout(() => ctrl.abort(), 90_000);
       const res = await fetch(`${url}/health`, { signal: ctrl.signal });
       clearTimeout(timer);
       const body = (await res.json().catch(() => null)) as { ok?: boolean } | null;
