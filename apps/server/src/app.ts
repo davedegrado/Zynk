@@ -62,10 +62,13 @@ export async function buildApp(opts: BuildOptions) {
   });
   await app.register(rateLimit, {
     global: true,
-    max: 300,
+    max: 600,
     timeWindow: '1 minute',
-    // Authenticated traffic is limited per token, anonymous traffic per IP.
-    keyGenerator: (req) => (req.headers.authorization ? `t:${req.headers.authorization.slice(-24)}` : `ip:${req.ip}`),
+    // Keyed by client IP (set TRUST_PROXY behind a load balancer). Never key on
+    // client-supplied headers such as Authorization: random fake tokens would
+    // otherwise mint fresh buckets and bypass the limit. Per-user limits for
+    // Zynks, requests and reports are enforced in the database.
+    keyGenerator: (req) => req.ip,
     errorResponseBuilder: (_req, ctx) => {
       const err = new ApiError('rate_limited', 'Too many requests. Slow down a little.', { retryAfterMs: ctx.ttl });
       return err;

@@ -134,7 +134,13 @@ export function friendRoutes(app: FastifyInstance, ctx: AppContext) {
     });
 
     if (outcome.kind === 'created') {
-      ctx.push.notifyFriendRequest({ requestId: outcome.requestId, fromUserId: me, toUserId: targetId });
+      // Don't re-notify someone who recently declined this person.
+      const { rowCount: declined } = await ctx.db.query(
+        `select 1 from friend_requests where from_user_id = $1 and to_user_id = $2 and status = 'rejected'
+            and responded_at > now() - interval '30 days'`,
+        [me, targetId],
+      );
+      if (!declined) ctx.push.notifyFriendRequest({ requestId: outcome.requestId, fromUserId: me, toUserId: targetId });
       reply.code(201);
     } else if (outcome.kind === 'accepted') {
       ctx.push.notifyFriendAccepted({ accepterId: me, requesterId: targetId });

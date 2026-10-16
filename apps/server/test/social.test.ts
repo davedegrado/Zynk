@@ -141,3 +141,17 @@ describe('blocking, muting and reporting', () => {
     expect(login.json().error.code).toBe('account_suspended');
   });
 });
+
+describe('request spam after rejection', () => {
+  it('does not push-notify again after the recipient declined', async () => {
+    const a = await register(t);
+    const b = await register(t);
+    const { addDevice } = await import('./helpers');
+    await addDevice(t, b);
+    const id = (await api(t, a).post('/friend-requests', { userId: b.id })).json().pendingRequestId;
+    await api(t, b).post(`/friend-requests/${id}/reject`);
+    await api(t, a).post('/friend-requests', { userId: b.id });
+    await t.app.zynk.push.drain();
+    expect(t.push.sent).toHaveLength(1);
+  });
+});

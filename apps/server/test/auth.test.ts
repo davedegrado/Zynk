@@ -133,3 +133,15 @@ describe('cors', () => {
     expect(bad.headers['access-control-allow-origin']).toBeUndefined();
   });
 });
+
+describe('rate limiting', () => {
+  it('cannot be bypassed by sending random Authorization headers', async () => {
+    t = (await t.app.close(), await setup({ AUTH_MAX_PER_MINUTE: '3' }));
+    const codes: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      const res = await t.app.inject({ method: 'POST', url: '/auth/login', payload: { username: 'x', password: 'y' }, headers: { authorization: `Bearer zk_fake_${i}_${'a'.repeat(30)}` } });
+      codes.push(res.statusCode);
+    }
+    expect(codes.filter((c) => c === 429).length).toBeGreaterThanOrEqual(2);
+  });
+});
