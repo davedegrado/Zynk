@@ -15,6 +15,7 @@ interface Props {
 export function Logo({ size = 64, color, cutout, mono }: Props) {
   const t = useAppTheme();
   const fg = color ?? t.colors.accent;
+  const inkOutline = t.scheme === 'light' && !color;
   if (mono) {
     return (
       <Svg width={size} height={size} viewBox={logo.viewBox}>
@@ -25,7 +26,15 @@ export function Logo({ size = 64, color, cutout, mono }: Props) {
   return (
     <Svg width={size} height={size} viewBox={logo.viewBox} accessibilityLabel="ZYNK logo">
       {logo.layers.map((l) => (
-        <Path key={l.id} d={l.d} fill={l.role === 'cutout' ? (cutout ?? t.colors.background) : fg} />
+        <Path
+          key={l.id}
+          d={l.d}
+          fill={l.role === 'cutout' ? (cutout ?? (inkOutline ? t.colors.text : t.colors.background)) : fg}
+          // Light themes: an ink outline keeps the lime symbol legible on pale backgrounds.
+          stroke={inkOutline && l.id === 'burst' ? t.colors.text : undefined}
+          strokeWidth={inkOutline && l.id === 'burst' ? 14 : 0}
+          strokeLinejoin="round"
+        />
       ))}
     </Svg>
   );

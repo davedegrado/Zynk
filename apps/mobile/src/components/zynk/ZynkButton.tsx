@@ -68,7 +68,14 @@ export function ZynkMini({ onPress, disabled, accessibilityLabel }: { onPress: (
     >
       <Svg width={52} height={52} viewBox={logo.viewBox}>
         {logo.layers.map((l) => (
-          <Path key={l.id} d={l.d} fill={l.role === 'cutout' ? t.colors.surface : t.colors.accent} />
+          <Path
+            key={l.id}
+            d={l.d}
+            fill={l.role === 'cutout' ? (t.scheme === 'light' ? t.colors.text : t.colors.surface) : t.colors.accent}
+            stroke={t.scheme === 'light' && l.id === 'burst' ? t.colors.text : undefined}
+            strokeWidth={t.scheme === 'light' && l.id === 'burst' ? 16 : 0}
+            strokeLinejoin="round"
+          />
         ))}
       </Svg>
     </AnimatedPressable>

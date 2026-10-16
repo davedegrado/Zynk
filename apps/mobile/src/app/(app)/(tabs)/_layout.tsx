@@ -39,11 +39,11 @@ function TabBar({ state, navigateToTab }: BottomTabBarProps) {
                   navigateToTab(route.key);
                 }
               }}
-              style={[styles.item, focused && { backgroundColor: t.colors.accent }]}
+              style={[styles.item, focused && { backgroundColor: t.colors.accent }, focused && t.scheme === 'light' && { borderWidth: 2, borderColor: t.colors.text }]}
             >
               <Icon name={meta.icon} size={22} color={focused ? t.colors.onAccent : t.colors.textMuted} />
               {focused ? <Text variant="label" style={{ color: t.colors.onAccent, fontSize: 11 }}>{meta.label}</Text> : null}
-              {count > 0 ? (
+              {count > 0 && !focused ? (
                 <View style={styles.badge}>
                   <CountBadge count={count} />
                 </View>

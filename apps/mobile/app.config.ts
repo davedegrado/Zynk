@@ -39,7 +39,7 @@ const config: ExpoConfig = {
     blockedPermissions: ['android.permission.READ_CONTACTS', 'android.permission.RECORD_AUDIO'],
     predictiveBackGestureEnabled: false,
   },
-  web: { favicon: './assets/images/favicon.png' },
+  web: { favicon: './assets/images/favicon.png', output: 'single' },
   plugins: [
     'expo-router',
     [

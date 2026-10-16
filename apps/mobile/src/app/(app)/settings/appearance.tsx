@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import { ACCENTS, BUBBLE_COLORS, EFFECTS, getBubbleColor, getSound, hasFeature, THEMES, type ColorSwatch } from '@zynk/shared';
 import { Divider, Icon, PlusBadge, Screen, Section, Text, ToggleRow } from '../../../components/ui';
+import { burstColorsFor } from '../../../components/zynk/burstColors';
 import { ZynkBurst } from '../../../components/zynk/ZynkBurst';
 import { useFeatures, usePreferences } from '../../../lib/hooks';
 import { useUpdatePrefs } from '../../../lib/prefs';
@@ -94,11 +95,11 @@ export default function AppearanceSettings() {
             effectId={preview?.id ?? prefs.effectId}
             reduceMotion={prefs.reduceMotion || systemReduce}
             bubbleFill={bubble.color}
-            outline={t.colors.text}
-            burstColor={t.colors.accent}
+            outline={burstColorsFor(t, bubble.color).outline}
+            burstColor={burstColorsFor(t, bubble.color).burst}
             size={200}
           >
-            <Text variant="title" style={{ color: bubble.ink }}>!</Text>
+            <Text variant="hero" style={{ color: bubble.ink, fontSize: 56, lineHeight: 64 }}>!</Text>
           </ZynkBurst>
         </View>
         <Section>

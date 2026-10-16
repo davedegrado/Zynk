@@ -1,8 +1,8 @@
-import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AuthResponse, Me } from '@zynk/shared';
 import { api, setApiToken, setUnauthorizedHandler } from './api';
 import { queryClient } from './query';
+import { tokenStorage } from './storage';
 
 const TOKEN_KEY = 'zynk.session';
 
@@ -32,7 +32,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const clearLocal = useCallback(async () => {
     setApiToken(null);
-    await SecureStore.deleteItemAsync(TOKEN_KEY).catch(() => undefined);
+    await tokenStorage.remove(TOKEN_KEY).catch(() => undefined);
     queryClient.clear();
     setUser(null);
     setStatus('signedOut');
@@ -56,7 +56,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setUnauthorizedHandler(() => void signOut({ remote: false }));
     (async () => {
-      const stored = await SecureStore.getItemAsync(TOKEN_KEY).catch(() => null);
+      const stored = await tokenStorage.get(TOKEN_KEY).catch(() => null);
       if (!stored) return setStatus('signedOut');
       setApiToken(stored);
       try {
@@ -72,7 +72,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [clearLocal, signOut]);
 
   const signIn = useCallback(async (auth: AuthResponse) => {
-    await SecureStore.setItemAsync(TOKEN_KEY, auth.token, { keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK });
+    await tokenStorage.set(TOKEN_KEY, auth.token);
     setApiToken(auth.token);
     queryClient.clear();
     setUser(auth.user);

@@ -54,7 +54,12 @@ export async function buildApp(opts: BuildOptions) {
   // Avatars are uploaded as raw image bodies.
   app.addContentTypeParser(['image/jpeg', 'image/png', 'image/webp'], { parseAs: 'buffer' }, (_req, body, done) => done(null, body));
 
-  await app.register(cors, { origin: config.corsOrigins.length ? config.corsOrigins : false });
+  await app.register(cors, {
+    origin: config.corsOrigins.length ? config.corsOrigins : false,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['authorization', 'content-type', 'accept'],
+    maxAge: 600,
+  });
   await app.register(rateLimit, {
     global: true,
     max: 300,

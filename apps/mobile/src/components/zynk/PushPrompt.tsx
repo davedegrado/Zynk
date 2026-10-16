@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, Platform, View } from 'react-native';
 import { getPushPermission, requestPushPermission, type PushPermission } from '../../lib/notifications';
 import { space } from '../../theme/tokens';
 import { Button, Card, Text } from '../ui';
@@ -11,7 +11,7 @@ export function PushPrompt() {
   useEffect(() => {
     getPushPermission().then(setPerm).catch(() => setPerm(null));
   }, []);
-  if (dismissed || !perm || perm === 'granted') return null;
+  if (Platform.OS === 'web' || dismissed || !perm || perm === 'granted') return null;
   return (
     <Card style={{ gap: space.sm }}>
       <Text variant="heading">Don&apos;t miss a Zynk</Text>

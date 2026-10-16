@@ -61,6 +61,7 @@ let registeredToken: string | null = null;
 export type PushPermission = 'granted' | 'denied' | 'undetermined';
 
 export async function getPushPermission(): Promise<PushPermission> {
+  if (Platform.OS === 'web') return 'denied';
   const p = await Notifications.getPermissionsAsync();
   if (p.granted || p.ios?.status === IosAuthorizationStatus.PROVISIONAL) return 'granted';
   return p.canAskAgain ? 'undetermined' : 'denied';
@@ -116,7 +117,8 @@ export function useNotifications() {
   const { status } = useSession();
 
   useEffect(() => {
-    if (status !== 'signedIn') return;
+    // Push is native-only; the web build (dev previews) relies on Activity polling.
+    if (status !== 'signedIn' || Platform.OS === 'web') return;
     void registerDeviceIfPermitted();
 
     const responseSub = Notifications.addNotificationResponseReceivedListener(openFromNotification);

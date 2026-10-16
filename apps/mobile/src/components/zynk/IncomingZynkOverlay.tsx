@@ -12,6 +12,7 @@ import { playSound } from '../../lib/sounds';
 import { radius, space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Avatar, Button, Text } from '../ui';
+import { burstColorsFor } from './burstColors';
 import { ReactionGlyph } from './ReactionGlyph';
 import { useSendZynk } from './useSendZynk';
 import { ZynkBurst } from './ZynkBurst';
@@ -120,14 +121,14 @@ function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: (
             effectId={pres.effectId}
             reduceMotion={pres.reduceMotion}
             bubbleFill={bubble.color}
-            outline={t.colors.text}
-            burstColor={t.colors.accent}
+            outline={burstColorsFor(t, bubble.color).outline}
+            burstColor={burstColorsFor(t, bubble.color).burst}
             size={230}
           >
             {zynk.reactionId ? (
               <ReactionGlyph reactionId={zynk.reactionId} fallback={zynk.reactionFallback} size={54} />
             ) : (
-              <Text variant="title" style={{ color: bubble.ink }}>!</Text>
+              <Text variant="hero" style={{ color: bubble.ink, fontSize: 64, lineHeight: 72 }}>!</Text>
             )}
           </ZynkBurst>
           <View style={styles.who}>

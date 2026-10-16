@@ -41,7 +41,7 @@ function ReactRow({ zynk, onDone }: { zynk: ZynkEvent; onDone: () => void }) {
   );
 }
 
-function ActivityItem({ zynk, highlighted }: { zynk: ZynkEvent; highlighted: boolean }) {
+function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; highlighted: boolean; showActions: boolean }) {
   const t = useAppTheme();
   const toast = useToast();
   const [reacting, setReacting] = useState(false);
@@ -75,7 +75,7 @@ function ActivityItem({ zynk, highlighted }: { zynk: ZynkEvent; highlighted: boo
           <ReactionGlyph reactionId={zynk.responseReactionId} fallback={zynk.responseReactionFallback} size={24} />
         </View>
       ) : null}
-      {received ? (
+      {received && showActions ? (
         <View style={styles.actions}>
           <Button title="Zynk back" icon="bolt" size="sm" onPress={() => send(null)} loading={sending} />
           <Button title={reacting ? 'Close' : 'React'} size="sm" variant="secondary" onPress={() => setReacting((v) => !v)} />
@@ -113,6 +113,15 @@ export default function ActivityScreen() {
 
   const items = [...(activity.data?.items ?? []), ...older];
   const nextBefore = cursor === undefined ? activity.data?.nextBefore : cursor;
+  // Quick actions on the most recent Zynk from each friend keep the list calm.
+  const latestReceived = new Set<string>();
+  const seenFriends = new Set<string>();
+  for (const z of items) {
+    if (z.direction === 'received' && !seenFriends.has(z.counterpart.id)) {
+      seenFriends.add(z.counterpart.id);
+      latestReceived.add(z.id);
+    }
+  }
 
   const loadMore = async () => {
     if (!nextBefore || loadingMore) return;
@@ -153,7 +162,7 @@ export default function ActivityScreen() {
       ) : (
         <View style={{ gap: space.sm }}>
           {items.map((z) => (
-            <ActivityItem key={z.id} zynk={z} highlighted={params.zynk === z.id} />
+            <ActivityItem key={z.id} zynk={z} highlighted={params.zynk === z.id} showActions={latestReceived.has(z.id) || params.zynk === z.id} />
           ))}
           {nextBefore ? <Button title="Load older" variant="ghost" onPress={loadMore} loading={loadingMore} /> : null}
         </View>

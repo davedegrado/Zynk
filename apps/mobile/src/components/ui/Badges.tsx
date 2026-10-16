@@ -18,7 +18,7 @@ export function CountBadge({ count }: { count: number }) {
   const t = useAppTheme();
   if (count <= 0) return null;
   return (
-    <View style={[styles.count, { backgroundColor: t.colors.accent }]} accessibilityLabel={`${count} new`}>
+    <View style={[styles.count, { backgroundColor: t.colors.accent }, t.scheme === 'light' && { borderWidth: 1.5, borderColor: t.colors.text }]} accessibilityLabel={`${count} new`}>
       <Text variant="label" style={{ color: t.colors.onAccent, fontSize: 11, lineHeight: 14 }}>{count > 99 ? '99+' : count}</Text>
     </View>
   );

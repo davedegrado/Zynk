@@ -122,3 +122,14 @@ describe('profiles', () => {
     expect(JSON.stringify(body)).not.toMatch(/password|token|status/i);
   });
 });
+
+describe('cors', () => {
+  it('allows every API method from configured origins only', async () => {
+    t = (await t.app.close(), await setup({ CORS_ORIGINS: 'https://app.example' }));
+    const ok = await t.app.inject({ method: 'OPTIONS', url: '/me/preferences', headers: { origin: 'https://app.example', 'access-control-request-method': 'PATCH' } });
+    expect(ok.headers['access-control-allow-origin']).toBe('https://app.example');
+    expect(String(ok.headers['access-control-allow-methods'])).toContain('PATCH');
+    const bad = await t.app.inject({ method: 'OPTIONS', url: '/me', headers: { origin: 'https://evil.example', 'access-control-request-method': 'GET' } });
+    expect(bad.headers['access-control-allow-origin']).toBeUndefined();
+  });
+});

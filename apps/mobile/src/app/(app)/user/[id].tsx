@@ -6,6 +6,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 import { getSound } from '@zynk/shared';
 import { RelationshipAction, refreshSocial } from '../../../components/RelationshipAction';
 import { Avatar, Button, Divider, ErrorState, Loading, PlusBadge, Row, Screen, Section, Text, ToggleRow, useConfirm, useToast } from '../../../components/ui';
+import { burstColorsFor } from '../../../components/zynk/burstColors';
 import { ReactionGlyph } from '../../../components/zynk/ReactionGlyph';
 import { ReactionPicker } from '../../../components/zynk/ReactionPicker';
 import { useSendZynk } from '../../../components/zynk/useSendZynk';
@@ -41,12 +42,12 @@ function ZynkPanel({ friendId, name }: { friendId: string; name: string }) {
             effectId={prefs?.effectId ?? 'classic'}
             reduceMotion={(prefs?.reduceMotion ?? false) || systemReduce}
             bubbleFill={t.colors.bubble}
-            outline={t.colors.text}
-            burstColor={t.colors.accent}
+            outline={burstColorsFor(t, t.colors.bubble).outline}
+            burstColor={burstColorsFor(t, t.colors.bubble).burst}
             size={230}
             onDone={() => setPlayKey(0)}
           >
-            {reaction ? <ReactionGlyph reactionId={reaction} size={52} /> : <Text variant="title" style={{ color: t.colors.onBubble }}>!</Text>}
+            {reaction ? <ReactionGlyph reactionId={reaction} size={52} /> : <Text variant="hero" style={{ color: t.colors.onBubble, fontSize: 64, lineHeight: 72 }}>!</Text>}
           </ZynkBurst>
         ) : (
           <ZynkButton
