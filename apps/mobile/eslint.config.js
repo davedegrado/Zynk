@@ -7,4 +7,9 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*', '.expo/*', 'ios/*', 'android/*'],
   },
+  {
+    // jest.mock() must run before the mocked modules are imported.
+    files: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    rules: { 'import/first': 'off' },
+  },
 ]);

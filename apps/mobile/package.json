@@ -40,9 +40,14 @@
     "react-native-worklets": "0.13.0"
   },
   "devDependencies": {
+    "@react-native/jest-preset": "^0.88.0",
+    "@testing-library/react-native": "^14.1.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^58.0.4",
+    "jest": "^30.5.2",
+    "jest-expo": "^58.0.11",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -54,5 +59,15 @@
     "test": "jest",
     "export": "expo export --platform ios --platform android --output-dir dist"
   },
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "testTimeout": 15000,
+    "testMatch": [
+      "<rootDir>/src/**/*.test.ts?(x)"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|react-native-svg|react-native-purchases|@revenuecat/.*|@zynk/.*|standard-navigation)"
+    ]
+  }
 }

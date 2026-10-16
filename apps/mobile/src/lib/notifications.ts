@@ -100,7 +100,8 @@ onSignOut(async () => {
   await Notifications.setBadgeCountAsync(0).catch(() => undefined);
 });
 
-function urlToPath(url: string | undefined): string | null {
+/** Maps a push payload URL to an in-app route, rejecting anything unexpected. */
+export function urlToPath(url: string | undefined): string | null {
   if (!url?.startsWith('zynk://')) return null;
   const path = `/${url.slice('zynk://'.length)}`;
   return /^\/(activity|add|user\/[0-9a-f-]{36}|invite\/[A-Za-z0-9]+)(\?[\w=&-]*)?$/.test(path) ? path : null;

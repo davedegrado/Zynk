@@ -123,7 +123,8 @@ async function verifyWithServer(): Promise<PurchaseOutcome> {
   return { kind: 'verifying' };
 }
 
-function mapError(err: unknown): PurchaseOutcome {
+export function mapError(err: unknown): PurchaseOutcome {
+  loadModule();
   const e = err as { code?: string; userCancelled?: boolean; message?: string };
   if (e.userCancelled || e.code === errorCodes?.PURCHASE_CANCELLED_ERROR) return { kind: 'cancelled' };
   if (e.code === errorCodes?.PAYMENT_PENDING_ERROR) return { kind: 'pending' };
