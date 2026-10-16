@@ -26,7 +26,7 @@ Limiti dei piani gratuiti (vanno bene per provare):
 4. Attendi il deploy (5–10 minuti la prima volta). In alto trovi l'indirizzo, tipo `https://speow-api.onrender.com`.
 5. Aprilo con `/health` alla fine: deve rispondere `{"ok":true,...}` (la prima volta può impiegare un minuto).
 
-Mandami quell'indirizzo: lo inserisco nell'APK, così l'app si collega da sola.
+L'APK di test usa già `https://speow-api.onrender.com` come server predefinito.
 
 ## 2. Installare l'APK
 
