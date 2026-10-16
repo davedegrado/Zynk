@@ -1,15 +1,20 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BRAND } from '@zynk/shared';
 import { Logo } from '../../components/brand/Logo';
 import { Wordmark } from '../../components/brand/Wordmark';
 import { Button, Text } from '../../components/ui';
+import { ALLOW_SERVER_OVERRIDE, getApiUrl } from '../../lib/config';
 import { space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
 
 export default function Welcome() {
   const t = useAppTheme();
+  // Re-read when returning from the Server screen.
+  const [server, setServer] = useState(getApiUrl());
+  useFocusEffect(useCallback(() => setServer(getApiUrl()), []));
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: t.colors.background }]}>
       <View style={styles.hero}>
@@ -23,6 +28,15 @@ export default function Welcome() {
       <View style={styles.actions}>
         <Button title="Create account" onPress={() => router.push('/register')} fullWidth />
         <Button title="I already have one" variant="ghost" onPress={() => router.push('/login')} fullWidth />
+        {ALLOW_SERVER_OVERRIDE ? (
+          <Button
+            title={server ? `Server: ${server.replace(/^https?:\/\//, '')}` : 'Set server address'}
+            variant="ghost"
+            size="sm"
+            icon="link"
+            onPress={() => router.push('/server')}
+          />
+        ) : null}
       </View>
     </SafeAreaView>
   );

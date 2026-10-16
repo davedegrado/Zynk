@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AuthResponse, Me } from '@zynk/shared';
 import { api, setApiToken, setUnauthorizedHandler } from './api';
+import { loadServerOverride } from './config';
 import { queryClient } from './query';
 import { tokenStorage } from './storage';
 
@@ -56,6 +57,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setUnauthorizedHandler(() => void signOut({ remote: false }));
     (async () => {
+      await loadServerOverride();
       const stored = await tokenStorage.get(TOKEN_KEY).catch(() => null);
       if (!stored) return setStatus('signedOut');
       setApiToken(stored);

@@ -86,10 +86,15 @@ export async function registerDeviceIfPermitted(): Promise<boolean> {
 
 /** Asks for permission (only call from an explicit user action) and registers. */
 export async function requestPushPermission(): Promise<PushPermission> {
-  await ensureAndroidChannels();
-  const res = await Notifications.requestPermissionsAsync({ ios: { allowAlert: true, allowBadge: true, allowSound: true } });
-  if (res.granted) await registerDeviceIfPermitted();
-  return getPushPermission();
+  try {
+    await ensureAndroidChannels();
+    const res = await Notifications.requestPermissionsAsync({ ios: { allowAlert: true, allowBadge: true, allowSound: true } });
+    if (res.granted) await registerDeviceIfPermitted();
+    return getPushPermission();
+  } catch {
+    // e.g. Expo Go on Android (no push support): Speows still arrive in-app.
+    return 'denied';
+  }
 }
 
 onSignOut(async () => {

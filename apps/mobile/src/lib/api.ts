@@ -17,7 +17,7 @@ import type {
   UserProfile,
   ZynkEvent,
 } from '@zynk/shared';
-import { API_URL } from './config';
+import { getApiUrl } from './config';
 
 export class ApiError extends Error {
   constructor(
@@ -42,7 +42,7 @@ export const setUnauthorizedHandler = (fn: (() => void) | null) => {
   onUnauthorized = fn;
 };
 export const authHeaders = (): Record<string, string> => (token ? { authorization: `Bearer ${token}` } : {});
-export const absoluteUrl = (path: string) => `${API_URL}${path}`;
+export const absoluteUrl = (path: string) => `${getApiUrl()}${path}`;
 
 async function request<T>(method: string, path: string, body?: unknown, opts: { raw?: { data: Blob | ArrayBuffer; type: string } } = {}): Promise<T> {
   const headers: Record<string, string> = { accept: 'application/json', ...authHeaders() };
@@ -54,9 +54,11 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
     headers['content-type'] = 'application/json';
     payload = JSON.stringify(body);
   }
+  const base = getApiUrl();
+  if (!base) throw new ApiError(0, 'network', 'No server address set. Tap “Server” on the welcome screen.');
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, { method, headers, body: payload });
+    res = await fetch(`${base}${path}`, { method, headers, body: payload });
   } catch {
     throw new ApiError(0, 'network', "Can't reach Speow! right now. Check your connection.");
   }

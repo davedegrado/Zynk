@@ -7,7 +7,7 @@ import type { UserProfile } from '@zynk/shared';
 import { RelationshipAction, refreshSocial as refresh } from '../../../components/RelationshipAction';
 import { Avatar, Button, Card, IconButton, Input, Loading, Screen, Text, useConfirm, useToast } from '../../../components/ui';
 import { api, errorMessage } from '../../../lib/api';
-import { INVITE_BASE_URL } from '../../../lib/config';
+import { getInviteBaseUrl } from '../../../lib/config';
 import { useFriendRequests, useInvite } from '../../../lib/hooks';
 import { keys, queryClient } from '../../../lib/query';
 import { radius, space } from '../../../theme/tokens';
@@ -40,7 +40,7 @@ function InviteCard() {
   const toast = useToast();
   const confirm = useConfirm();
   const invite = useInvite();
-  const url = invite.data ? `${INVITE_BASE_URL}/i/${invite.data.code}` : null;
+  const url = invite.data ? `${getInviteBaseUrl()}/i/${invite.data.code}` : null;
   const rotate = useMutation({
     mutationFn: api.rotateInvite,
     onSuccess: (d) => {

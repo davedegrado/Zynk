@@ -15,7 +15,7 @@ This monorepo contains the iOS/Android app, the API, and shared contracts.
 | `apps/server` | Fastify 5 + PostgreSQL API (TypeScript) |
 | `packages/shared` | Catalogs, feature/entitlement model, personalization rules, zod API contract |
 | `tools/assets` | Generators for the logo, app icons and the original synthesized sounds |
-| `docs/` | [Architecture](docs/ARCHITECTURE.md) · [Setup: push, purchases, deployment](docs/SETUP.md) |
+| `docs/` | [Architecture](docs/ARCHITECTURE.md) · [Setup: push, purchases, deployment](docs/SETUP.md) · [Provare sul telefono (IT)](docs/PROVA-SUL-TELEFONO.md) |
 
 ## Quick start
 

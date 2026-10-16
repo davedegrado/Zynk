@@ -6,6 +6,10 @@ const SOUND_FILES = ['classic', 'boing', 'laser', 'coin', 'knock', 'chime', 'who
 
 const IS_DEV = process.env.APP_VARIANT === 'development';
 
+// EAS project id: run `npx eas-cli@latest init` once and paste the id it prints here
+// (EAS can't write it into a dynamic config automatically). EAS_PROJECT_ID env also works.
+const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID || '';
+
 // Brand: Speow! Persistent identifiers below (slug, scheme, bundle id/package,
 // sound file names) intentionally keep their original `zynk` values — changing
 // them would break existing installs, push credentials, store records and links.
@@ -60,6 +64,8 @@ const config: ExpoConfig = {
         sounds: SOUND_FILES,
       },
     ],
+    // Test (preview) builds may talk to a plain-HTTP server on your LAN; store builds stay HTTPS-only.
+    ['expo-build-properties', { android: { usesCleartextTraffic: process.env.ALLOW_CLEARTEXT === '1' } }],
     'expo-secure-store',
     ['expo-audio', { microphonePermission: false, recordAudioAndroid: false }],
     'expo-web-browser',
@@ -74,7 +80,7 @@ const config: ExpoConfig = {
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: {
-    eas: { projectId: process.env.EAS_PROJECT_ID },
+    eas: { projectId: EAS_PROJECT_ID || undefined },
   },
 };
 
