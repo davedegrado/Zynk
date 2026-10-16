@@ -11,7 +11,8 @@ RUN npm run build -w @zynk/server
 
 FROM node:22-alpine
 WORKDIR /app
-ENV NODE_ENV=production
+# Behind Railway/Render/any load balancer: trust X-Forwarded-For for per-IP rate limits.
+ENV NODE_ENV=production TRUST_PROXY=true
 COPY --from=build /repo/node_modules ./node_modules
 COPY --from=build /repo/apps/server/dist ./dist
 USER node

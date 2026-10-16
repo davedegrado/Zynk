@@ -1,0 +1,79 @@
+name: Android test APK
+
+# Builds an installable test APK on GitHub's servers (they ship the Android SDK)
+# and publishes it as the "android-test" pre-release, so it can be downloaded
+# straight from a phone. Signed with the debug key: for testing, not the Play Store.
+
+on:
+  push:
+    branches: [claude/sleepy-wozniak-nmu6dv, main]
+    paths:
+      - apps/mobile/**
+      - packages/shared/**
+      - package-lock.json
+      - .github/workflows/android-apk.yml
+  workflow_dispatch:
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI: "1"
+      # Server the app talks to (set to the Railway URL once it exists).
+      EXPO_PUBLIC_API_URL: ${{ vars.SPEOW_API_URL }}
+      # Test builds may switch server from the welcome screen.
+      EXPO_PUBLIC_ALLOW_SERVER_OVERRIDE: "1"
+      ALLOW_CLEARTEXT: "0"
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: npm ci
+
+      - name: Generate native Android project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Build release APK (arm64 phones)
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
+
+      - name: Publish to the android-test pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+          cp "$APK" speow-test.apk
+          SHORT=$(git rev-parse --short HEAD)
+          gh release delete android-test --yes --cleanup-tag || true
+          gh release create android-test speow-test.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Speow! test APK ($SHORT)" \
+            --notes "Test build from commit $SHORT. Server: ${EXPO_PUBLIC_API_URL:-not set — tap 'Set server address' on the welcome screen}. Install on Android: open speow-test.apk from your phone and allow installs from your browser."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speow-test-apk
+          path: speow-test.apk
+          retention-days: 14

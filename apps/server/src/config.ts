@@ -80,6 +80,8 @@ const planSchema = z.object({
 });
 
 export function loadConfig(env: Record<string, string | undefined> = process.env) {
+  // Railway injects RAILWAY_PUBLIC_DOMAIN; use it for invite links unless PUBLIC_URL is set.
+  if (!env.PUBLIC_URL && env.RAILWAY_PUBLIC_DOMAIN) env = { ...env, PUBLIC_URL: `https://${env.RAILWAY_PUBLIC_DOMAIN}` };
   const parsed = envSchema.safeParse(env);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
