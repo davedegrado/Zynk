@@ -1,0 +1,11 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: zynk
+      POSTGRES_PASSWORD: zynk
+      POSTGRES_DB: zynk
+    ports: ["5432:5432"]
+    volumes: [zynk-db:/var/lib/postgresql/data]
+volumes:
+  zynk-db:

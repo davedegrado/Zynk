@@ -1,0 +1,24 @@
+{
+  "name": "zynk",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ZYNK \u2014 MAKE SOME NOISE. A playful signal app for friends.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "db:test:start": "bash scripts/test-db.sh start",
+    "db:test:stop": "bash scripts/test-db.sh stop",
+    "server:dev": "npm run dev -w @zynk/server",
+    "mobile:start": "npm run start -w @zynk/mobile",
+    "assets:generate": "npm run generate -w @zynk/assets-tools"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

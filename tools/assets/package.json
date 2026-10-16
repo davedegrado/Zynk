@@ -1,0 +1,13 @@
+{
+  "name": "@zynk/assets-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Procedural generators for ZYNK brand icons and notification sounds.",
+  "scripts": {
+    "generate": "node generate-icons.mjs && node generate-sounds.mjs"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}
