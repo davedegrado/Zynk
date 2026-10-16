@@ -8,10 +8,10 @@ on:
   push:
     branches: [claude/sleepy-wozniak-nmu6dv, main]
     paths:
- Server the app talks to (set to the Railway URL once it exists).- apps/mobile/**
- Server the app talks to (set to the Railway URL once it exists).- packages/shared/**
- Server the app talks to (set to the Railway URL once it exists).- package-lock.json
- Server the app talks to (set to the Railway URL once it exists).- .github/workflows/android-apk.yml
+      - apps/mobile/**
+      - packages/shared/**
+      - package-lock.json
+      - .github/workflows/android-apk.yml
   workflow_dispatch:
 
 concurrency:
@@ -26,54 +26,54 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
- Server the app talks to (set to the Railway URL once it exists).CI: "1"
- Server the app talks to (set to the Railway URL once it exists).# Server the app talks to (set to the Railway URL once it exists).
- Server the app talks to (set to the Railway URL once it exists).EXPO_PUBLIC_API_URL: ${{ vars.SPEOW_API_URL || 'https://speow-api.onrender.com' }}
- Server the app talks to (set to the Railway URL once it exists).# Test builds may switch server from the welcome screen.
- Server the app talks to (set to the Railway URL once it exists).EXPO_PUBLIC_ALLOW_SERVER_OVERRIDE: "1"
- Server the app talks to (set to the Railway URL once it exists).ALLOW_CLEARTEXT: "0"
- Server the app talks to (set to the Railway URL once it exists).NODE_OPTIONS: --max-old-space-size=4096
+      CI: "1"
+      # Server the app talks to: the free Render test server unless the SPEOW_API_URL repo variable is set.
+      EXPO_PUBLIC_API_URL: ${{ vars.SPEOW_API_URL || 'https://speow-api.onrender.com' }}
+      # Test builds may switch server from the welcome screen.
+      EXPO_PUBLIC_ALLOW_SERVER_OVERRIDE: "1"
+      ALLOW_CLEARTEXT: "0"
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
- Server the app talks to (set to the Railway URL once it exists).- uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
- Server the app talks to (set to the Railway URL once it exists).- uses: actions/setup-node@v4
- Server the app talks to (set to the Railway URL once it exists).  with:
- Server the app talks to (set to the Railway URL once it exists).    node-version: 22
- Server the app talks to (set to the Railway URL once it exists).    cache: npm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
- Server the app talks to (set to the Railway URL once it exists).- uses: actions/setup-java@v4
- Server the app talks to (set to the Railway URL once it exists).  with:
- Server the app talks to (set to the Railway URL once it exists).    distribution: temurin
- Server the app talks to (set to the Railway URL once it exists).    java-version: 17
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
- Server the app talks to (set to the Railway URL once it exists).- uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
- Server the app talks to (set to the Railway URL once it exists).- run: npm ci
+      - run: npm ci
 
- Server the app talks to (set to the Railway URL once it exists).- name: Generate native Android project
- Server the app talks to (set to the Railway URL once it exists).  working-directory: apps/mobile
- Server the app talks to (set to the Railway URL once it exists).  run: npx expo prebuild --platform android --no-install
+      - name: Generate native Android project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --no-install
 
- Server the app talks to (set to the Railway URL once it exists).- name: Build release APK (arm64 phones)
- Server the app talks to (set to the Railway URL once it exists).  working-directory: apps/mobile/android
- Server the app talks to (set to the Railway URL once it exists).  run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
+      - name: Build release APK (arm64 phones)
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a --no-daemon
 
- Server the app talks to (set to the Railway URL once it exists).- name: Publish to the android-test pre-release
- Server the app talks to (set to the Railway URL once it exists).  env:
- Server the app talks to (set to the Railway URL once it exists).    GH_TOKEN: ${{ github.token }}
- Server the app talks to (set to the Railway URL once it exists).  run: |
- Server the app talks to (set to the Railway URL once it exists).    APK=apps/mobile/android/app/build/outputs/apk/release/app-release.apk
- Server the app talks to (set to the Railway URL once it exists).    cp "$APK" speow-test.apk
- Server the app talks to (set to the Railway URL once it exists).    SHORT=$(git rev-parse --short HEAD)
- Server the app talks to (set to the Railway URL once it exists).    gh release delete android-test --yes --cleanup-tag || true
- Server the app talks to (set to the Railway URL once it exists).    gh release create android-test speow-test.apk \
- Server the app talks to (set to the Railway URL once it exists).      --prerelease \
- Server the app talks to (set to the Railway URL once it exists).      --target "$GITHUB_SHA" \
- Server the app talks to (set to the Railway URL once it exists).      --title "Speow! test APK ($SHORT)" \
- Server the app talks to (set to the Railway URL once it exists).      --notes "Test build from commit $SHORT. Server: ${EXPO_PUBLIC_API_URL:-not set — tap 'Set server address' on the welcome screen}. Install on Android: open speow-test.apk from your phone and allow installs from your browser."
+      - name: Publish to the android-test pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+          cp "$APK" speow-test.apk
+          SHORT=$(git rev-parse --short HEAD)
+          gh release delete android-test --yes --cleanup-tag || true
+          gh release create android-test speow-test.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Speow! test APK ($SHORT)" \
+            --notes "Test build from commit $SHORT. Server: ${EXPO_PUBLIC_API_URL:-not set — tap 'Set server address' on the welcome screen}. Install on Android: open speow-test.apk from your phone and allow installs from your browser."
 
- Server the app talks to (set to the Railway URL once it exists).- uses: actions/upload-artifact@v4
- Server the app talks to (set to the Railway URL once it exists).  with:
- Server the app talks to (set to the Railway URL once it exists).    name: speow-test-apk
- Server the app talks to (set to the Railway URL once it exists).    path: speow-test.apk
- Server the app talks to (set to the Railway URL once it exists).    retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speow-test-apk
+          path: speow-test.apk
+          retention-days: 14
