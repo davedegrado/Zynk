@@ -32,7 +32,7 @@ export default function Register() {
   };
 
   return (
-    <Screen back title="Make some noise" subtitle="Pick a username your friends can find you by.">
+    <Screen back title="Join Speow!" subtitle="Pick a username your friends can find you by.">
       <Input
         label="Username"
         icon="profile"
@@ -61,7 +61,7 @@ export default function Register() {
       {error && !Object.keys(fields).length ? <Text tone="danger" accessibilityRole="alert">{error}</Text> : null}
       <Button title="Create account" onPress={submit} loading={busy} disabled={!usernameCheck?.success || password.length < 8} fullWidth />
       <Text variant="caption" tone="muted" center>
-        No contacts access, no public follower counts, no ads. Just Zynks.
+        No contacts access, no public follower counts, no ads. Just Speows.
       </Text>
     </Screen>
   );

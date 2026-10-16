@@ -17,7 +17,7 @@ export function useUpdatePrefs() {
     },
     onError: (err, _patch, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(keys.prefs, ctx.prev);
-      toast(err instanceof ApiError && err.code === 'feature_locked' ? 'That one needs ZYNK Plus.' : errorMessage(err), 'error');
+      toast(err instanceof ApiError && err.code === 'feature_locked' ? 'That one needs Speow Plus.' : errorMessage(err), 'error');
     },
     onSuccess: (res) => queryClient.setQueryData(keys.prefs, res),
   });

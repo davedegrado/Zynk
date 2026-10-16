@@ -1,4 +1,4 @@
-// Rasterises the ZYNK symbol into the PNGs Expo expects.
+// Rasterises the Speow! symbol into the PNGs Expo expects.
 // Run: npm run generate (from tools/assets) or node generate-icons.mjs
 import { Resvg } from '@resvg/resvg-js';
 import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
@@ -20,20 +20,20 @@ function render(svg, size, file) {
 const solid = (color) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="${color}"/></svg>`;
 
-console.log('ZYNK icons →', IMAGES);
+console.log('Speow! icons →', IMAGES);
 
-// App store icon: full bleed Night, symbol ~70%.
-render(symbolSvg({ bg: COLORS.night, scale: 0.7 }), 1024, 'icon.png');
+// App store icon: full bleed Near-black, symbol ~70%.
+render(symbolSvg({ bg: COLORS.ink, scale: 0.7 }), 1024, 'icon.png');
 // Android adaptive: symbol within the inner 66% safe zone (~600px of 1024).
 render(symbolSvg({ scale: 0.58 }), 1024, 'android-icon-foreground.png');
-render(solid(COLORS.night), 1024, 'android-icon-background.png');
+render(solid(COLORS.ink), 1024, 'android-icon-background.png');
 render(monoSvg({ color: '#FFFFFF', scale: 0.58 }), 1024, 'android-icon-monochrome.png');
-// Splash: symbol only, transparent; splash background is Night.
+// Splash: symbol only, transparent; splash background is Near-black.
 render(symbolSvg({ scale: 0.9 }), 1024, 'splash-icon.png');
 // Android notification icon: white alpha silhouette.
 render(monoSvg({ color: '#FFFFFF', scale: 0.94 }), 96, 'notification-icon.png');
 // Web favicon.
-render(symbolSvg({ bg: COLORS.night, scale: 0.9 }), 48, 'favicon.png');
+render(symbolSvg({ bg: COLORS.ink, scale: 0.9 }), 48, 'favicon.png');
 
 writeBrandFiles(BRAND);
 console.log('  brand/logo-symbol.svg, brand/logo-mono.svg, brand/logo-paths.json');

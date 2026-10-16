@@ -14,7 +14,7 @@ interface Props {
   onLocked: () => void;
 }
 
-/** Structured reactions only: one predefined item per Zynk, never free text. */
+/** Structured reactions only: one predefined item per Speow, never free text. */
 export function ReactionPicker({ value, onChange, onLocked }: Props) {
   const t = useAppTheme();
   const features = useFeatures();
@@ -32,7 +32,7 @@ export function ReactionPicker({ value, onChange, onLocked }: Props) {
         <Pressable onPress={onLocked} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
           <PlusBadge locked />
           <Text variant="caption" tone="muted" style={{ flex: 1 }}>
-            Preview — {pack.description} Unlock with ZYNK Plus.
+            Preview — {pack.description} Unlock with Speow Plus.
           </Text>
         </Pressable>
       ) : null}
@@ -44,7 +44,7 @@ export function ReactionPicker({ value, onChange, onLocked }: Props) {
             <Pressable
               key={ref}
               accessibilityRole="button"
-              accessibilityLabel={`${item.label}${locked ? ', ZYNK Plus' : ''}`}
+              accessibilityLabel={`${item.label}${locked ? ', Speow Plus' : ''}`}
               accessibilityState={{ selected }}
               onPress={() => (locked ? onLocked() : onChange(selected ? null : ref))}
               style={[

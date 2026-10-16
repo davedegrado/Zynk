@@ -89,14 +89,14 @@ describe('blocking, muting and reporting', () => {
     expect((await api(t, a).post('/blocks', { userId: b.id })).statusCode).toBe(204);
 
     expect((await api(t, a).get('/friends')).json().friends).toHaveLength(0);
-    // The blocked user can't find, view, request or Zynk the blocker.
+    // The blocked user can't find, view, request or send a Speow to the blocker.
     expect((await api(t, b).get('/users/search?q=block')).json().users).toHaveLength(0);
     expect((await api(t, b).get(`/users/${a.id}`)).statusCode).toBe(404);
     expect((await api(t, b).post('/friend-requests', { userId: a.id })).statusCode).toBe(404);
     const z = await zynk(t, b, a);
     expect(z.statusCode).toBe(403);
     expect(z.json().error.code).toBe('not_friends');
-    // Past Zynks from the blocked user disappear from Activity.
+    // Past Speows from the blocked user disappear from Activity.
     expect((await api(t, a).get('/activity')).json().items).toHaveLength(0);
     // The blocker sees "blocked" and can unblock.
     expect((await api(t, a).get(`/users/${b.id}`)).json().relationship).toBe('blocked');
@@ -120,7 +120,7 @@ describe('blocking, muting and reporting', () => {
     expect((await api(t, a).get('/admin/reports')).statusCode).toBe(401);
   });
 
-  it('cannot attach someone else\'s Zynk to a report', async () => {
+  it('cannot attach someone else\'s Speow to a report', async () => {
     const [a, b, c] = [await register(t), await register(t), await register(t)];
     await befriend(t, b, c);
     const zid = (await zynk(t, b, c)).json().zynk.id;

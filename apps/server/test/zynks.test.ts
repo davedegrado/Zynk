@@ -10,8 +10,8 @@ afterEach(async () => {
   await t.app.close();
 });
 
-describe('sending Zynks', () => {
-  it('friends can Zynk each other and it shows up in both activities', async () => {
+describe('sending Speows', () => {
+  it('friends can send each other Speows and it shows up in both activities', async () => {
     const a = await register(t, 'zed');
     const b = await register(t, 'yara');
     await befriend(t, a, b);
@@ -25,12 +25,12 @@ describe('sending Zynks', () => {
     expect(inbox.items[0].counterpart.username).toBe('zed');
     expect((await api(t, a).get('/activity?direction=sent')).json().items).toHaveLength(1);
 
-    // Zynk back.
+    // Speow back.
     expect((await zynk(t, b, a)).statusCode).toBe(201);
     expect((await api(t, b).get('/activity')).json().items.map((i: { direction: string }) => i.direction)).toEqual(['sent', 'received']);
   });
 
-  it('non-friends and self cannot be Zynked, even via direct API calls', async () => {
+  it('non-friends and self cannot be sent a Speow, even via direct API calls', async () => {
     const a = await register(t);
     const b = await register(t);
     expect((await zynk(t, a, b)).json().error.code).toBe('not_friends');
@@ -84,7 +84,7 @@ describe('sending Zynks', () => {
     const b = await register(t);
     await befriend(t, a, b);
     let ok = 0;
-    // 100 well-paced Zynks over ~17 hours all go through (the per-route HTTP limiter is real-time,
+    // 100 well-paced Speows over ~17 hours all go through (the per-route HTTP limiter is real-time,
     // so the test stays below it).
     for (let i = 0; i < 100; i++) {
       t.clock.advance(10 * 60_000);
@@ -113,7 +113,7 @@ describe('sending Zynks', () => {
     expect(received).toMatchObject({ reactionId: 'y2k:bolt', reactionFallback: '⚡' });
   });
 
-  it('marks Zynks as seen (recipient only) and lets the recipient react', async () => {
+  it('marks Speows as seen (recipient only) and lets the recipient react', async () => {
     const a = await register(t);
     const b = await register(t);
     await befriend(t, a, b);
@@ -146,7 +146,7 @@ describe('sending Zynks', () => {
 });
 
 describe('push notifications', () => {
-  it('delivers a push with the resolved sound, and the Zynk exists regardless', async () => {
+  it('delivers a push with the resolved sound, and the Speow exists regardless', async () => {
     const a = await register(t, 'pusher');
     const b = await register(t, 'pushee');
     await befriend(t, a, b);
@@ -157,7 +157,7 @@ describe('push notifications', () => {
     expect(t.push.sent).toHaveLength(2);
     const ios = t.push.sent.find((m) => m.platform === 'ios')!;
     const android = t.push.sent.find((m) => m.platform === 'android')!;
-    expect(ios).toMatchObject({ title: 'ZYNK!', body: 'PUSHER zynked you 👋', iosSound: 'zynk_classic.wav', badge: 1 });
+    expect(ios).toMatchObject({ title: 'Speow!', body: 'PUSHER sent you a Speow 👋', iosSound: 'zynk_classic.wav', badge: 1 });
     expect(ios.data).toMatchObject({ type: 'zynk', zynkId: id, url: `zynk://activity?zynk=${id}` });
     expect(android.androidChannelId).toBe('zynk_classic');
     expect(JSON.stringify(ios.data)).not.toContain('ExponentPushToken');
@@ -165,7 +165,7 @@ describe('push notifications', () => {
     expect(rows[0].push_status).toBe('sent');
   });
 
-  it('respects disabled notifications, mutes and collapsing; the Zynk is still in Activity', async () => {
+  it('respects disabled notifications, mutes and collapsing; the Speow is still in Activity', async () => {
     const a = await register(t);
     const b = await register(t);
     await befriend(t, a, b);
@@ -249,5 +249,17 @@ describe('push notifications', () => {
     await t.app.zynk.push.drain();
     expect(t.push.sent).toHaveLength(1);
     expect(t.push.sent[0]).toMatchObject({ title: 'New friend request', data: { type: 'friend_request' } });
+  });
+});
+
+describe('push copy', () => {
+  it('uses the Speow! brand in notifications', async () => {
+    const a = await register(t, 'brandy');
+    const b = await register(t, 'brandee');
+    await befriend(t, a, b);
+    await addDevice(t, b);
+    await zynk(t, a, b);
+    await t.app.zynk.push.drain();
+    expect(t.push.sent[0]).toMatchObject({ title: 'Speow!', body: 'BRANDY sent you a Speow!' });
   });
 });

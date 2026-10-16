@@ -42,7 +42,7 @@ export function EmptyState({ title, body, action, onAction, art }: { title: stri
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <View style={[styles.center, { paddingVertical: space.xxl }]} accessibilityRole="alert">
-      <Text variant="heading" center>Well, that didn&apos;t zynk.</Text>
+      <Text variant="heading" center>Hmm, that didn&apos;t land.</Text>
       <Text tone="muted" center style={{ maxWidth: 300 }}>{message}</Text>
       {onRetry ? <Button title="Try again" variant="secondary" onPress={onRetry} /> : null}
     </View>

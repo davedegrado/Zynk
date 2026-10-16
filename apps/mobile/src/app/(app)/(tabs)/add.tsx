@@ -58,7 +58,7 @@ function InviteCard() {
         <Loading size={28} />
       )}
       <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
-        <Button title="Share link" icon="share" size="sm" disabled={!url} onPress={() => url && void Share.share({ message: `Zynk me! ${url}`, url })} />
+        <Button title="Share link" icon="share" size="sm" disabled={!url} onPress={() => url && void Share.share({ message: `Send me a Speow! ${url}`, url })} />
         <Button
           title="Copy"
           icon="link"

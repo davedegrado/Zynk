@@ -53,7 +53,7 @@ function ZynkPanel({ friendId, name }: { friendId: string; name: string }) {
           <ZynkButton
             size={210}
             disabled={sending}
-            accessibilityLabel={`Send a Zynk to ${name}`}
+            accessibilityLabel={`Send a Speow to ${name}`}
             onPress={() => {
               if (send(reaction)) setPlayKey(Date.now());
             }}
@@ -61,7 +61,7 @@ function ZynkPanel({ friendId, name }: { friendId: string; name: string }) {
         )}
       </View>
       <Text tone="muted" accessibilityLiveRegion="polite">
-        {sending ? 'Zynking…' : sentAt ? `Zynked ${timeAgo(sentAt)}` : `Tap to zynk ${name}`}
+        {sending ? 'Sending…' : sentAt ? `You sent a Speow! · ${timeAgo(sentAt)}` : `Tap to send ${name} a Speow`}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
         {reaction ? <ReactionGlyph reactionId={reaction} size={28} /> : null}
@@ -108,7 +108,7 @@ export default function UserScreen() {
       after();
       void queryClient.invalidateQueries({ queryKey: keys.blocks });
       void queryClient.invalidateQueries({ queryKey: keys.activityAll });
-      toast(b ? 'Blocked. They can no longer find or Zynk you.' : 'Unblocked');
+      toast(b ? 'Blocked. They can no longer find you or send you a Speow.' : 'Unblocked');
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
@@ -136,12 +136,12 @@ export default function UserScreen() {
       {isFriend ? <ZynkPanel friendId={p.id} name={p.displayName} /> : null}
 
       {isFriend ? (
-        <Section title="This friend" footer="Muting stops notifications from this friend. Their Zynks still appear in Activity.">
+        <Section title="This friend" footer="Muting stops notifications from this friend. Their Speows still appear in Activity.">
           <ToggleRow title="Mute notifications" value={p.muted} onChange={(v) => mute.mutate(v)} />
           <Divider />
           <Row
             icon="sound"
-            title="Their Zynk sound"
+            title="Their Speow sound"
             subtitle={p.friendSoundId ? getSound(p.friendSoundId)?.name : 'Default'}
             right={canFriendSounds ? undefined : <PlusBadge locked />}
             chevron
@@ -172,7 +172,7 @@ export default function UserScreen() {
               title="Block"
               destructive
               onPress={async () => {
-                if (await confirm({ title: `Block ${p.displayName}?`, body: "They won't be able to find you, add you or Zynk you. They won't be notified.", confirm: 'Block', destructive: true })) block.mutate(true);
+                if (await confirm({ title: `Block ${p.displayName}?`, body: "They won't be able to find you, add you or send you a Speow. They won't be notified.", confirm: 'Block', destructive: true })) block.mutate(true);
               }}
             />
           )}

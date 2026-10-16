@@ -192,7 +192,7 @@ export interface ZynkEvent {
 
 export interface SendZynkResponse {
   zynk: ZynkEvent;
-  /** True if this was a retried request that matched an existing Zynk. */
+  /** True if this was a retried request that matched an existing Speow. */
   duplicate: boolean;
 }
 

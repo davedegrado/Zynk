@@ -18,7 +18,7 @@ import { useSendZynk } from './useSendZynk';
 import { ZynkBurst } from './ZynkBurst';
 
 /**
- * Announces Zynks received while the app is open — from a foreground push or
+ * Announces Speows received while the app is open — from a foreground push or
  * from the Activity poll (so it also works with notifications disabled).
  * Presentation and sound are decided by the *recipient's* settings.
  */
@@ -41,7 +41,7 @@ export function IncomingZynkOverlay() {
     };
   }, [current]);
 
-  // Poll path: new, unseen received Zynks since this app session started.
+  // Poll path: new, unseen received Speows since this app session started.
   useEffect(() => {
     for (const z of activity.data?.items ?? []) {
       if (z.direction !== 'received' || z.seenAt) continue;
@@ -133,12 +133,12 @@ function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: (
           </ZynkBurst>
           <View style={styles.who}>
             <Avatar user={zynk.counterpart} size={40} />
-            <Text variant="heading" accessibilityLiveRegion="assertive">{zynk.counterpart.displayName} zynked you!</Text>
+            <Text variant="heading" accessibilityLiveRegion="assertive">{zynk.counterpart.displayName} sent you a Speow!</Text>
           </View>
           <View style={styles.actions}>
             <Button title="Later" variant="ghost" size="sm" onPress={onClose} />
             <Button
-              title="Zynk back"
+              title="Speow back"
               icon="bolt"
               size="sm"
               onPress={() => {

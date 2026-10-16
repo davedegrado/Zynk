@@ -1,6 +1,6 @@
 # @zynk/assets-tools
 
-Generates ZYNK brand icons and notification sounds into `apps/mobile/assets/`.
+Generates Speow! brand icons and notification sounds into `apps/mobile/assets/`.
 
 ```bash
 npm install                       # from repo root (installs @resvg/resvg-js)

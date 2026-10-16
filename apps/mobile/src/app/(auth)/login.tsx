@@ -24,7 +24,7 @@ export default function Login() {
   };
 
   return (
-    <Screen back title="Welcome back" subtitle="Log in with your ZYNK username.">
+    <Screen back title="Welcome back" subtitle="Log in with your Speow! username.">
       <Input label="Username" icon="profile" autoCapitalize="none" autoCorrect={false} autoComplete="username" textContentType="username" value={username} onChangeText={setUsername} returnKeyType="next" />
       <Input label="Password" secureTextEntry autoComplete="current-password" textContentType="password" value={password} onChangeText={setPassword} onSubmitEditing={submit} returnKeyType="go" />
       {error ? <Text tone="danger" accessibilityRole="alert">{error}</Text> : null}

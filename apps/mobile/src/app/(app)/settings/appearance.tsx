@@ -26,7 +26,7 @@ function Swatches({ items, value, onSelect, label }: { items: readonly ColorSwat
             <Pressable
               key={s.id}
               accessibilityRole="radio"
-              accessibilityLabel={`${s.name}${locked ? ', ZYNK Plus' : ''}`}
+              accessibilityLabel={`${s.name}${locked ? ', Speow Plus' : ''}`}
               accessibilityState={{ checked: selected }}
               onPress={() => (locked ? router.push('/plus') : onSelect(s.id))}
               style={[styles.swatch, { backgroundColor: s.color, borderColor: selected ? t.colors.text : t.colors.border }]}
@@ -47,11 +47,11 @@ export default function AppearanceSettings() {
   const update = useUpdatePrefs();
   const systemReduce = useReducedMotion();
   const [preview, setPreview] = useState<{ id: string; key: number } | null>(null);
-  if (!prefs) return <Screen back title="Look & effects"><Text tone="muted">Loading…</Text></Screen>;
+  if (!prefs) return <Screen back title="Look & Effects"><Text tone="muted">Loading…</Text></Screen>;
   const bubble = getBubbleColor(prefs.bubbleColorId) ?? getBubbleColor('lime')!;
 
   return (
-    <Screen back title="Look & effects" subtitle="How ZYNK looks for you — and how your Zynks look when they land.">
+    <Screen back title="Look & Effects" subtitle="How Speow! looks for you — and how your Speows look when they land.">
       <View style={{ gap: space.sm }}>
         <Text variant="label" tone="muted">Theme</Text>
         <View style={styles.themes}>
@@ -63,9 +63,9 @@ export default function AppearanceSettings() {
                 key={th.id}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: selected }}
-                accessibilityLabel={`${th.name} theme${locked ? ', ZYNK Plus' : ''}`}
+                accessibilityLabel={`${th.name} theme${locked ? ', Speow Plus' : ''}`}
                 onPress={() => (locked ? router.push('/plus') : update.mutate({ themeId: th.id, appearance: 'theme' }))}
-                style={[styles.theme, { backgroundColor: th.colors.background, borderColor: selected ? t.colors.accent : th.colors.border }]}
+                style={[styles.theme, { backgroundColor: th.colors.background, borderColor: selected ? (t.scheme === 'light' ? t.colors.text : t.colors.accent) : th.colors.border }]}
               >
                 <View style={[styles.themeBar, { backgroundColor: th.colors.surfaceAlt }]} />
                 <View style={[styles.themeDot, { backgroundColor: ACCENTS.find((a) => a.id === th.defaultAccentId)?.color }]} />
@@ -78,17 +78,17 @@ export default function AppearanceSettings() {
       </View>
       <Section>
         <ToggleRow
-          title="Match system (Night / Daylight)"
+          title="Match system (Dark / Light)"
           value={prefs.appearance === 'system'}
           onChange={(v) => update.mutate({ appearance: v ? 'system' : 'theme' })}
         />
       </Section>
 
       <Swatches label="Accent color" items={ACCENTS} value={prefs.accentId} onSelect={(id) => update.mutate({ accentId: id })} />
-      <Swatches label="Zynk bubble" items={BUBBLE_COLORS} value={prefs.bubbleColorId} onSelect={(id) => update.mutate({ bubbleColorId: id })} />
+      <Swatches label="Speow bubble" items={BUBBLE_COLORS} value={prefs.bubbleColorId} onSelect={(id) => update.mutate({ bubbleColorId: id })} />
 
       <View style={{ gap: space.sm }}>
-        <Text variant="label" tone="muted">Zynk effect</Text>
+        <Text variant="label" tone="muted">Speow effect</Text>
         <View style={{ alignItems: 'center', height: 200, justifyContent: 'center' }}>
           <ZynkBurst
             playKey={preview?.key ?? 0}
@@ -111,7 +111,7 @@ export default function AppearanceSettings() {
                 <Pressable
                   accessibilityRole="radio"
                   accessibilityState={{ checked: selected }}
-                  accessibilityLabel={`${e.name}${locked ? ', ZYNK Plus, tap to preview' : ''}`}
+                  accessibilityLabel={`${e.name}${locked ? ', Speow Plus, tap to preview' : ''}`}
                   onPress={() => {
                     setPreview({ id: e.id, key: Date.now() });
                     if (e.pairedSoundId && prefs.soundsEnabled) void playSound(e.pairedSoundId, 0.7);
@@ -134,11 +134,11 @@ export default function AppearanceSettings() {
           })}
         </Section>
         {EFFECTS.some((e) => !hasFeature(features, e.requiredFeature)) ? (
-          <Text variant="caption" tone="muted">Tap a locked effect to preview it. Unlock all effects with ZYNK Plus.</Text>
+          <Text variant="caption" tone="muted">Tap a locked effect to preview it. Unlock all effects with Speow Plus.</Text>
         ) : null}
       </View>
 
-      <Section title="Received Zynks" footer="Your settings always decide how Zynks look on your phone.">
+      <Section title="Received Speows" footer="Your settings always decide how Speows look on your phone.">
         <ToggleRow title="Show friends' colors & effects" value={prefs.showSenderStyle} onChange={(v) => update.mutate({ showSenderStyle: v })} />
         <Divider />
         <ToggleRow title="Reduce motion" subtitle="Calm fade instead of bursts and shakes" value={prefs.reduceMotion} onChange={(v) => update.mutate({ reduceMotion: v })} />

@@ -77,7 +77,7 @@ describe('entitlements & feature access', () => {
     const prefs = (await api(t, a).get('/me/preferences')).json();
     expect(prefs.selected).toMatchObject({ outgoingSoundId: 'zynk_laser', themeId: 'ultraviolet' }); // kept for re-subscribe
     expect(prefs.effective).toMatchObject({ outgoingSoundId: 'zynk_classic', themeId: 'night', bubbleColorId: 'lime', effectId: 'classic' });
-    // Outgoing Zynks no longer carry premium styling, but sending still works.
+    // Outgoing Speows no longer carry premium styling, but sending still works.
     const after = await zynk(t, a, b);
     expect(after.json().zynk).toMatchObject({ soundId: 'zynk_classic', bubbleColorId: 'lime', effectId: 'classic' });
     t.clock.advance(3000);
@@ -103,7 +103,7 @@ describe('entitlements & feature access', () => {
 
     await zynk(t, a, b, { reactionId: 'moves:hop_frog' });
     await t.app.zynk.push.drain();
-    expect(t.push.sent[0]).toMatchObject({ iosSound: 'zynk_boing.wav', body: 'PLUSSER zynked you 🐸' });
+    expect(t.push.sent[0]).toMatchObject({ iosSound: 'zynk_boing.wav', body: 'PLUSSER sent you a Speow 🐸' });
     const received = (await api(t, b).get('/activity')).json().items[0];
     expect(received).toMatchObject({ soundId: 'zynk_boing', effectId: 'confetti', reactionId: 'moves:hop_frog' });
 

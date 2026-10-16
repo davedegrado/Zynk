@@ -1,4 +1,4 @@
-// ZYNK notification sounds — original, procedurally synthesised.
+// Speow! notification sounds — original, procedurally synthesised.
 // Pure Node, no dependencies. Output: 16-bit PCM mono 44.1 kHz WAV.
 // Deterministic: all noise comes from a seeded PRNG.
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -283,7 +283,7 @@ const sounds = {
 };
 
 mkdirSync(OUT, { recursive: true });
-console.log('ZYNK sounds →', OUT);
+console.log('Speow! sounds →', OUT);
 for (const [name, fn] of Object.entries(sounds)) {
   const data = wav(fn());
   writeFileSync(resolve(OUT, `${name}.wav`), data);
@@ -292,16 +292,16 @@ for (const [name, fn] of Object.entries(sounds)) {
 
 writeFileSync(
   resolve(OUT, 'LICENSE.md'),
-  `# ZYNK sounds — license
+  `# Speow! sounds — license
 
-All \`.wav\` files in this directory are original works created for ZYNK.
+All \`.wav\` files in this directory are original works created for Speow!.
 They were synthesised procedurally (oscillators, FM, filtered seeded noise)
 by \`tools/assets/generate-sounds.mjs\` in this repository.
 
 No third-party samples, recordings, or sound libraries were used.
 Regenerate them with \`npm run generate -w @zynk/assets-tools\`.
 
-Copyright (c) ZYNK. All rights reserved.
+Copyright (c) Speow!. All rights reserved.
 `,
 );
 console.log('  sounds/LICENSE.md');

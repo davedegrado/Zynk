@@ -5,7 +5,7 @@ import { absoluteUrl, authHeaders } from '../../lib/api';
 import { fonts } from '../../theme/tokens';
 import { Text } from './Text';
 
-const SWATCHES = [BRAND.colors.acidLime, BRAND.colors.purple, BRAND.colors.electricBlue, BRAND.colors.pink, BRAND.colors.offWhite];
+const SWATCHES = [BRAND.colors.lime, BRAND.colors.purple, BRAND.colors.electricBlue, BRAND.colors.pink, BRAND.colors.white];
 
 function hash(s: string) {
   let h = 0;
@@ -34,7 +34,7 @@ export function Avatar({ user, size = 48, ring }: { user: Pick<PublicUser, 'id' 
           cachePolicy="memory-disk"
         />
       ) : (
-        <Text style={{ fontFamily: fonts.display, fontSize: size * 0.36, color: BRAND.colors.night, lineHeight: size * 0.44 }}>{initials}</Text>
+        <Text style={{ fontFamily: fonts.display, fontSize: size * 0.36, color: BRAND.colors.ink, lineHeight: size * 0.44 }}>{initials}</Text>
       )}
     </View>
   );

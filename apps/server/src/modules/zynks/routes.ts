@@ -44,7 +44,7 @@ export function zynkRoutes(app: FastifyInstance, ctx: AppContext) {
   app.get('/zynks/:id', auth, async (req) => {
     const { id } = parse(userIdParam, req.params);
     const zynk = await loadZynk(ctx.db, id, authOf(req).userId);
-    if (!zynk) throw notFound('Zynk not found');
+    if (!zynk) throw notFound('Speow not found');
     return zynk;
   });
 
@@ -65,7 +65,7 @@ export function zynkRoutes(app: FastifyInstance, ctx: AppContext) {
     return { updated: rowCount ?? 0 };
   });
 
-  // The recipient may answer a Zynk with one predefined reaction (no text).
+  // The recipient may answer a Speow with one predefined reaction (no text).
   app.put('/zynks/:id/reaction', auth, async (req) => {
     const me = authOf(req).userId;
     const { id } = parse(userIdParam, req.params);
@@ -77,7 +77,7 @@ export function zynkRoutes(app: FastifyInstance, ctx: AppContext) {
         where id = $1 and recipient_id = $2 returning sender_id`,
       [id, me, reactionId, fallback],
     );
-    if (!rows[0]) throw new ApiError('not_found', 'Zynk not found');
+    if (!rows[0]) throw new ApiError('not_found', 'Speow not found');
     return (await loadZynk(ctx.db, id, me))!;
   });
 }

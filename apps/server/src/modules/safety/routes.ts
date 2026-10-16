@@ -68,12 +68,12 @@ export function safetyRoutes(app: FastifyInstance, ctx: AppContext) {
     const { rows: target } = await ctx.db.query<{ username: string }>('select username from users where id = $1', [body.userId]);
     if (!target[0]) throw notFound('User not found');
     if (body.zynkId) {
-      // Only Zynks between the two users can be attached as evidence.
+      // Only Speows between the two users can be attached as evidence.
       const { rowCount } = await ctx.db.query(
         `select 1 from zynks where id = $1 and ((sender_id = $2 and recipient_id = $3) or (sender_id = $3 and recipient_id = $2))`,
         [body.zynkId, me, body.userId],
       );
-      if (!rowCount) throw notFound('Zynk not found');
+      if (!rowCount) throw notFound('Speow not found');
     }
     const { rows: recent } = await ctx.db.query<{ n: number }>(
       `select count(*) as n from reports where reporter_id = $1 and created_at > now() - interval '1 day'`,

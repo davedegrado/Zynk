@@ -1,7 +1,11 @@
-# zynk — MAKE SOME NOISE.
+# Speow! — send a Speow.
 
-ZYNK is a lightweight social app built around one action: sending a playful
-signal — a **Zynk** — to a friend. No chat, no feed, no follower counts, no ads.
+Speow! is a lightweight social app built around one action: sending a quick,
+playful signal — a **Speow** — to a friend, without having to start a
+conversation. No chat, no feed, no follower counts, no ads.
+
+> The code keeps some original `zynk` identifiers (bundle id, URL scheme, DB tables,
+> package names) on purpose — see [SETUP.md](docs/SETUP.md#brand-identifiers-kept-from-the-previous-name).
 
 This monorepo contains the iOS/Android app, the API, and shared contracts.
 
@@ -52,19 +56,19 @@ In development the app talks to `http://<metro-host>:4000` automatically; set
 | `npx expo export --platform ios --platform android` (in `apps/mobile`) | Production JS bundles |
 | `npm run generate -w @zynk/assets-tools` | Regenerate icons and sounds |
 
-## Free vs Plus
+## Free vs Speow Plus
 
-Sending Zynks is never paywalled. Anti-spam limits (cooldowns, per-minute/hour
+Sending Speows is never paywalled. Anti-spam limits (cooldowns, per-minute/hour
 caps) apply equally to everyone and are configured separately from monetization.
 
-| | ZYNK Free | ZYNK Plus |
+| | Speow! Free | Speow Plus |
 |---|---|---|
-| Unlimited standard Zynks (anti-spam limits only) | ✓ | ✓ |
-| Friends, invites, Activity, seen state, Zynk back | ✓ | ✓ |
+| Unlimited standard Speows (anti-spam limits only) | ✓ | ✓ |
+| Friends, invites, Activity, seen state, Speow back | ✓ | ✓ |
 | Blocking, muting, reporting, notification settings | ✓ | ✓ |
 | Classic animation + Classic sound, haptics | ✓ | ✓ |
-| Basic reactions (8) — attach to a Zynk or react to one | ✓ | ✓ |
-| Night + Daylight themes, Acid Lime accent & bubble | ✓ | ✓ |
+| Basic reactions (8) — attach to a Speow or react to one | ✓ | ✓ |
+| Dark + Light themes, Acid Lime accent & bubble | ✓ | ✓ |
 | **Receiving** any premium sound / reaction / effect | ✓ | ✓ |
 | 8 exclusive original sounds (incoming + outgoing) | preview only | ✓ |
 | Per-friend sounds (recipient side) | — | ✓ |

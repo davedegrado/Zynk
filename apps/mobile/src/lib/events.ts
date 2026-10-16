@@ -10,7 +10,7 @@ export interface IncomingZynk {
 const listeners = new Set<Listener>();
 const shown = new Set<string>();
 
-/** In-app "you got Zynked" bus. Each Zynk is announced at most once. */
+/** In-app "you got a Speow" bus. Each Speow is announced at most once. */
 export const incomingZynks = {
   emit(z: IncomingZynk) {
     if (shown.has(z.zynk.id)) return;

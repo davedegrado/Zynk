@@ -58,7 +58,7 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
   try {
     res = await fetch(`${API_URL}${path}`, { method, headers, body: payload });
   } catch {
-    throw new ApiError(0, 'network', "Can't reach ZYNK right now. Check your connection.");
+    throw new ApiError(0, 'network', "Can't reach Speow! right now. Check your connection.");
   }
   if (res.status === 204) return undefined as T;
   const json = (await res.json().catch(() => null)) as (T & Partial<ApiErrorBody>) | null;

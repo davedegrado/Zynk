@@ -44,7 +44,7 @@ export default function ReportScreen() {
       </View>
       <Input label="Anything else? (optional)" value={details} onChangeText={setDetails} multiline maxLength={500} style={{ minHeight: 90, textAlignVertical: 'top' }} />
       <Section>
-        <ToggleRow title="Also block them" subtitle="They won't be able to find or Zynk you." value={alsoBlock} onChange={setAlsoBlock} />
+        <ToggleRow title="Also block them" subtitle="They won't be able to find you or send you a Speow." value={alsoBlock} onChange={setAlsoBlock} />
       </Section>
       <Button title="Send report" variant="danger" onPress={() => submit.mutate()} disabled={!reason} loading={submit.isPending} />
       <Text variant="caption" tone="muted" center>If someone is in immediate danger, contact local emergency services.</Text>

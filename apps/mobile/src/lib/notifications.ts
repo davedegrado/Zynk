@@ -10,7 +10,7 @@ import { incomingZynks } from './events';
 import { keys, queryClient } from './query';
 import { onSignOut, useSession } from './session';
 
-// Foreground behaviour: Zynks are shown with our own in-app animation and sound
+// Foreground behaviour: Speows are shown with our own in-app animation and sound
 // (respecting the user's settings), so the system banner/sound is suppressed.
 Notifications.setNotificationHandler({
   handleNotification: async (n) => {
@@ -34,17 +34,17 @@ export async function ensureAndroidChannels() {
   await Promise.all([
     ...SOUNDS.map((s) =>
       Notifications.setNotificationChannelAsync(s.id, {
-        name: `Zynks · ${s.name}`,
-        description: `Zynks that use the ${s.name} sound`,
+        name: `Speows · ${s.name}`,
+        description: `Speows that use the ${s.name} sound`,
         importance: AndroidImportance.HIGH,
         sound: `${s.file}.wav`,
         vibrationPattern: [0, 120, 60, 120],
-        lightColor: '#DFFF00',
+        lightColor: '#D7FF36',
       }),
     ),
     Notifications.setNotificationChannelAsync('zynk_silent', {
-      name: 'Zynks · Silent',
-      description: 'Zynks when you have turned Zynk sounds off',
+      name: 'Speows · Silent',
+      description: 'Speows when you have turned Speow sounds off',
       importance: AndroidImportance.HIGH,
       sound: null,
       vibrationPattern: [0, 120, 60, 120],

@@ -12,14 +12,15 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Path, Polygon } from 'react-native-svg';
 import { BRAND, getEffect, type BurstStyle } from '@zynk/shared';
+import logo from '../../../assets/brand/logo-paths.json';
 
 /**
- * The Zynk animation: a speech bubble pops in with a quick shake while a burst
+ * The Speow animation: a speech bubble pops in with a quick shake while a burst
  * plays behind it. All effects are short (<1s), never flash, and collapse to a
  * gentle fade when reduced motion is on.
  */
 
-const ACCENTS = [BRAND.colors.acidLime, BRAND.colors.pink, BRAND.colors.electricBlue, BRAND.colors.purple];
+const ACCENTS = [BRAND.colors.lime, BRAND.colors.pink, BRAND.colors.electricBlue, BRAND.colors.purple];
 
 function starPoints(cx: number, cy: number, outer: number, inner: number, n: number, jitter = 0) {
   const pts: string[] = [];
@@ -31,19 +32,32 @@ function starPoints(cx: number, cy: number, outer: number, inner: number, n: num
   return pts.join(' ');
 }
 
+// The bubble from the Speow! logo (512 viewBox): body x 40..392, y 136..408, tail tip at y 474.
+const LOGO_BUBBLE = logo.layers.find((l) => l.id === 'bubble')!.d;
+const VB = { x: 28, y: 124, w: 376, h: 362 };
+const BODY = { x: 40, y: 136, w: 352, h: 272 };
+
 export function BubbleShape({ size, fill, outline, children }: { size: number; fill: string; outline: string; children?: ReactNode }) {
+  const height = (size * VB.h) / VB.w;
+  const k = size / VB.w;
   return (
-    <View style={{ width: size, height: size * 0.86, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={size} height={size * 0.86} viewBox="0 0 200 172" style={StyleSheet.absoluteFill}>
-        <Path
-          d="M100 8C150 8 190 36 190 74s-40 66-90 66c-9 0-18-1-26-3L30 164l12-38C22 113 10 95 10 74 10 36 50 8 100 8z"
-          fill={fill}
-          stroke={outline}
-          strokeWidth={7}
-          strokeLinejoin="round"
-        />
+    <View style={{ width: size, height }}>
+      <Svg width={size} height={height} viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`} style={StyleSheet.absoluteFill}>
+        <Path d={LOGO_BUBBLE} fill={fill} stroke={outline} strokeWidth={14} strokeLinejoin="round" />
       </Svg>
-      <View style={{ marginTop: -size * 0.1, alignItems: 'center', justifyContent: 'center' }}>{children}</View>
+      <View
+        style={{
+          position: 'absolute',
+          left: (BODY.x - VB.x) * k,
+          top: (BODY.y - VB.y) * k,
+          width: BODY.w * k,
+          height: BODY.h * k,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {children}
+      </View>
     </View>
   );
 }
@@ -97,7 +111,7 @@ function Particle({ p, i, n, size, kind }: { p: SharedValue<number>; i: number; 
     <Animated.View style={[styles.particle, { width: w, height: kind === 'bolt' ? w * 1.6 : w * 1.8, marginLeft: -w / 2, marginTop: -w }, s]}>
       {kind === 'bolt' ? (
         <Svg width="100%" height="100%" viewBox="0 0 24 38">
-          <Path d="M15 0 2 21h9l-3 17 14-23h-9z" fill={color} stroke={BRAND.colors.night} strokeWidth={1.5} strokeLinejoin="round" />
+          <Path d="M15 0 2 21h9l-3 17 14-23h-9z" fill={color} stroke={BRAND.colors.ink} strokeWidth={1.5} strokeLinejoin="round" />
         </Svg>
       ) : (
         <View style={{ flex: 1, backgroundColor: color, borderRadius: 2 }} />
@@ -114,7 +128,7 @@ function Starburst({ p, size, color }: { p: SharedValue<number>; size: number; c
   return (
     <Animated.View style={[StyleSheet.absoluteFill, s]}>
       <Svg width={size} height={size} viewBox="0 0 200 200">
-        <Polygon points={starPoints(100, 100, 98, 40, 8)} fill={color} stroke={BRAND.colors.night} strokeWidth={4} strokeLinejoin="round" />
+        <Polygon points={starPoints(100, 100, 98, 40, 8)} fill={color} stroke={BRAND.colors.ink} strokeWidth={4} strokeLinejoin="round" />
       </Svg>
     </Animated.View>
   );

@@ -57,7 +57,7 @@ export interface ThemeSelection {
 
 /**
  * `selection` must be the *effective* (entitlement-checked) preferences from the server.
- * With appearance = "system", the free Night/Daylight pair follows the OS setting.
+ * With appearance = "system", the free Dark/Light pair (theme ids night/daylight) follows the OS setting.
  */
 export function ThemeProvider({ selection, children }: { selection: ThemeSelection | null; children: ReactNode }) {
   const system = useColorScheme();

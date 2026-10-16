@@ -27,7 +27,7 @@ export const useBlocks = () => useQuery({ queryKey: keys.blocks, queryFn: api.bl
 export const useInvite = () => useQuery({ queryKey: keys.invite, queryFn: api.invite, enabled: useSignedIn(), staleTime: Infinity });
 export const usePlans = () => useQuery({ queryKey: keys.plans, queryFn: api.plans, enabled: useSignedIn(), staleTime: 10 * 60_000 });
 
-/** Activity polls while the app is in the foreground, so Zynks arrive even with push disabled. */
+/** Activity polls while the app is in the foreground, so Speows arrive even with push disabled. */
 export function useActivity(direction: 'all' | 'received' | 'sent' = 'all') {
   const active = useAppActive();
   return useQuery({

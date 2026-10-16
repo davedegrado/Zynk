@@ -27,7 +27,7 @@ export function preferenceRoutes(app: FastifyInstance, ctx: AppContext) {
     return { selected, effective: effectivePreferences(selected, features) } satisfies PreferencesResponse;
   });
 
-  // Recipient-side per-friend sound (ZYNK Plus: custom_sounds).
+  // Recipient-side per-friend sound (Speow Plus: custom_sounds).
   app.put('/friends/:id/sound', auth, async (req, reply) => {
     const me = authOf(req).userId;
     const { id } = parse(userIdParam, req.params);
@@ -38,7 +38,7 @@ export function preferenceRoutes(app: FastifyInstance, ctx: AppContext) {
       return reply.code(204).send();
     }
     const features = await getFeatures(ctx.db, me, ctx.now());
-    if (!features.includes('custom_sounds')) throw new ApiError('feature_locked', 'Per-friend sounds are a ZYNK Plus feature', { feature: 'custom_sounds' });
+    if (!features.includes('custom_sounds')) throw new ApiError('feature_locked', 'Per-friend sounds are a Speow Plus feature', { feature: 'custom_sounds' });
     if (!getSound(soundId) || !isSelectable(getSound, soundId, features)) throw new ApiError('unknown_item', 'Unknown sound');
     await ctx.db.query(
       `insert into friend_sounds (user_id, friend_id, sound_id) values ($1, $2, $3)

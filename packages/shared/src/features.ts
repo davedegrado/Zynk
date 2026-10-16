@@ -29,15 +29,15 @@ export const ENTITLEMENT_FEATURES: Record<EntitlementId, readonly FeatureId[]> =
 export const FEATURE_INFO: Record<FeatureId, { title: string; description: string }> = {
   custom_sounds: {
     title: 'Custom sounds',
-    description: 'Exclusive original Zynk sounds, per-friend sounds and your own outgoing sound.',
+    description: 'Exclusive original Speow sounds, per-friend sounds and your own outgoing sound.',
   },
   premium_emoji_packs: {
     title: 'Premium reactions',
-    description: 'Exclusive Y2K reaction packs and animated reactions to attach to your Zynks.',
+    description: 'Exclusive Y2K reaction packs and animated reactions to attach to your Speows.',
   },
   custom_themes: {
     title: 'Colors & themes',
-    description: 'Your own accent color, Zynk bubble color and extra app themes.',
+    description: 'Your own accent color, Speow bubble color and extra app themes.',
   },
   exclusive_effects: {
     title: 'Exclusive effects',

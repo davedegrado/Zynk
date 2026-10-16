@@ -174,9 +174,9 @@ export function userRoutes(app: FastifyInstance, ctx: AppContext) {
     const deepLink = `zynk://invite/${code}`;
     reply.header('content-type', 'text/html; charset=utf-8').header('cache-control', 'no-store');
     return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Join me on ZYNK</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0B0B12;color:#F7F7F2;font:16px/1.4 system-ui,sans-serif;text-align:center}
-a{display:inline-block;margin-top:24px;padding:16px 28px;border-radius:999px;background:#DFFF00;color:#0B0B12;font-weight:800;text-decoration:none}h1{font-size:44px;margin:0;letter-spacing:-1px}p{color:#A6A6B4}</style></head>
-<body><main><h1>zynk</h1><p>MAKE SOME NOISE.</p><p>You've been invited to be friends on ZYNK.</p>
-<a href="${deepLink}">Open in ZYNK</a></main><script>setTimeout(function(){location.href=${JSON.stringify(deepLink)}},50)</script></body></html>`;
+<title>Join me on Speow!</title><meta name="theme-color" content="#111111"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#111111;color:#FFFFFF;font:16px/1.4 system-ui,sans-serif;text-align:center}
+a{display:inline-block;margin-top:24px;padding:16px 28px;border-radius:999px;background:#D7FF36;color:#111111;font-weight:800;text-decoration:none}h1{font-size:44px;margin:0;letter-spacing:-1px;font-weight:900}p{color:#A3A3A3}</style></head>
+<body><main><h1>Speow!</h1><p>SEND A SPEOW.</p><p>You've been invited to be friends on Speow!</p>
+<a href="${deepLink}">Open in Speow!</a></main><script>setTimeout(function(){location.href=${JSON.stringify(deepLink)}},50)</script></body></html>`;
   });
 }

@@ -157,7 +157,7 @@ export async function restorePurchases(): Promise<PurchaseOutcome> {
     }
   }
   const out = await verifyWithServer();
-  return out.kind === 'verifying' ? { kind: 'error', message: 'No active ZYNK Plus subscription was found for this account.' } : out;
+  return out.kind === 'verifying' ? { kind: 'error', message: 'No active Speow Plus subscription was found for this account.' } : out;
 }
 
 /** Opens the store's own subscription management screen. */

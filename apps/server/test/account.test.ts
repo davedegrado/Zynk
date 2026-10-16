@@ -40,7 +40,7 @@ describe('account deletion', () => {
 });
 
 describe('retention', () => {
-  it('deletes old Zynks and expired sessions', async () => {
+  it('deletes old Speows and expired sessions', async () => {
     const a = await register(t);
     const b = await register(t);
     await befriend(t, a, b);

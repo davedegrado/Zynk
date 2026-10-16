@@ -67,7 +67,7 @@ export async function buildApp(opts: BuildOptions) {
     // Keyed by client IP (set TRUST_PROXY behind a load balancer). Never key on
     // client-supplied headers such as Authorization: random fake tokens would
     // otherwise mint fresh buckets and bypass the limit. Per-user limits for
-    // Zynks, requests and reports are enforced in the database.
+    // Speows, requests and reports are enforced in the database.
     keyGenerator: (req) => req.ip,
     errorResponseBuilder: (_req, ctx) => {
       const err = new ApiError('rate_limited', 'Too many requests. Slow down a little.', { retryAfterMs: ctx.ttl });

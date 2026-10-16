@@ -94,11 +94,11 @@ export default function AccountSettings() {
         </View>
       </Section>
 
-      <Section title="Delete account" footer="Deletes your profile, friends, Zynks, preferences and devices permanently. This cannot be undone.">
+      <Section title="Delete account" footer="Deletes your profile, friends, Speows, preferences and devices permanently. This cannot be undone.">
         <View style={{ padding: space.lg, gap: space.md }}>
           {activeSub ? (
             <Text tone="danger">
-              You have an active ZYNK Plus subscription. Deleting your account does not cancel it — cancel it in the {sub?.store === 'play_store' ? 'Google Play' : 'App Store'} subscription settings first.
+              You have an active Speow Plus subscription. Deleting your account does not cancel it — cancel it in the {sub?.store === 'play_store' ? 'Google Play' : 'App Store'} subscription settings first.
             </Text>
           ) : null}
           <Input label="Confirm with your password" secureTextEntry value={deletePw} onChangeText={setDeletePw} />

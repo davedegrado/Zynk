@@ -53,7 +53,7 @@ export function validateReaction(ref: string, features: readonly FeatureId[]) {
   const found = getReaction(ref);
   if (!found || found.pack.retired) throw new ApiError('unknown_item', 'Unknown reaction', { fields: { reactionId: 'Unknown reaction' } });
   if (!hasFeature(features, found.pack.requiredFeature)) {
-    throw new ApiError('feature_locked', `${found.pack.name} is a ZYNK Plus pack`, { feature: found.pack.requiredFeature ?? undefined });
+    throw new ApiError('feature_locked', `${found.pack.name} is a Speow Plus pack`, { feature: found.pack.requiredFeature ?? undefined });
   }
   return found;
 }
@@ -62,9 +62,9 @@ type SendInput = z.output<typeof sendZynkSchema>;
 
 export async function sendZynk(ctx: AppContext, senderId: string, input: SendInput): Promise<{ zynk: ZynkEvent; duplicate: boolean }> {
   const { db, config, now: clock } = ctx;
-  if (input.recipientId === senderId) throw new ApiError('bad_request', "You can't Zynk yourself");
+  if (input.recipientId === senderId) throw new ApiError('bad_request', "You can't send a Speow to yourself");
 
-  // 1. Idempotency: a retried request returns the original Zynk, untouched.
+  // 1. Idempotency: a retried request returns the original Speow, untouched.
   const existing = await db.query<{ id: string }>('select id from zynks where sender_id = $1 and client_nonce = $2', [senderId, input.clientNonce]);
   if (existing.rows[0]) {
     const zynk = await loadZynk(db, existing.rows[0].id, senderId);
@@ -73,9 +73,9 @@ export async function sendZynk(ctx: AppContext, senderId: string, input: SendInp
 
   // 2. Relationship checks. Blocks are reported as "not friends" so they can't be probed.
   const { rows: rec } = await db.query<{ status: string }>('select status from users where id = $1', [input.recipientId]);
-  if (!rec[0] || rec[0].status !== 'active') throw new ApiError('not_friends', 'You can only Zynk friends');
+  if (!rec[0] || rec[0].status !== 'active') throw new ApiError('not_friends', 'You can only send a Speow to friends');
   if ((await isBlockedEitherWay(db, senderId, input.recipientId)) || !(await areFriends(db, senderId, input.recipientId))) {
-    throw new ApiError('not_friends', 'You can only Zynk friends');
+    throw new ApiError('not_friends', 'You can only send a Speow to friends');
   }
 
   // 3. Personalization, validated against the sender's verified entitlements.
@@ -88,7 +88,7 @@ export async function sendZynk(ctx: AppContext, senderId: string, input: SendInp
     const effect = getEffect(input.effectId);
     if (!effect || effect.retired) throw new ApiError('unknown_item', 'Unknown effect');
     if (!isSelectable(getEffect, input.effectId, features)) {
-      throw new ApiError('feature_locked', 'This effect is a ZYNK Plus feature', { feature: effect.requiredFeature ?? undefined });
+      throw new ApiError('feature_locked', 'This effect is a Speow Plus feature', { feature: effect.requiredFeature ?? undefined });
     }
     effectId = input.effectId;
   }
@@ -118,7 +118,7 @@ export async function sendZynk(ctx: AppContext, senderId: string, input: SendInp
       throw new ApiError('cooldown', 'Easy there! Give it a second.', { retryAfterMs: config.limits.pairCooldownMs - sinceLast });
     }
     if (s.pair_min >= config.limits.pairMaxPerMinute || s.sender_min >= config.limits.senderMaxPerMinute) {
-      throw new ApiError('rate_limited', 'Whoa, that is a lot of Zynks. Take a breather.', { retryAfterMs: 60_000 });
+      throw new ApiError('rate_limited', 'Whoa, that is a lot of Speows. Take a breather.', { retryAfterMs: 60_000 });
     }
     if (s.sender_hour >= config.limits.senderMaxPerHour) {
       throw new ApiError('rate_limited', 'You have hit the anti-spam limit. Try again later.', { retryAfterMs: 3600_000 });

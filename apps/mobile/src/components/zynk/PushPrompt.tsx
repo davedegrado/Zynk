@@ -14,11 +14,11 @@ export function PushPrompt() {
   if (Platform.OS === 'web' || dismissed || !perm || perm === 'granted') return null;
   return (
     <Card style={{ gap: space.sm }}>
-      <Text variant="heading">Don&apos;t miss a Zynk</Text>
+      <Text variant="heading">Don&apos;t miss a Speow</Text>
       <Text tone="muted">
         {perm === 'denied'
-          ? 'Notifications are off for ZYNK in system settings. Zynks still land in Activity while the app is open.'
-          : 'Turn on notifications to feel it when a friend zynks you. You choose sounds, mutes and more later.'}
+          ? 'Notifications are off for Speow! in system settings. Speows still land in Activity while the app is open.'
+          : 'Turn on notifications to know when a friend sends you a Speow. You choose sounds, mutes and more later.'}
       </Text>
       <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.xs }}>
         {perm === 'denied' ? (

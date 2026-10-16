@@ -34,7 +34,7 @@ unavailable). This page lists exactly what to configure for each.
 | `FRIEND_REQUESTS_MAX_PER_HOUR` | | `40` | |
 | `REPORTS_MAX_PER_DAY` | | `20` | |
 | `AUTH_MAX_PER_MINUTE` | | `10` | Per IP on login/register/password routes |
-| `ZYNK_RETENTION_DAYS` | | `180` | `0` keeps Zynks forever |
+| `ZYNK_RETENTION_DAYS` | | `180` | `0` keeps Speows forever |
 | `RETENTION_INTERVAL_MINUTES` | | `60` | `0` disables the in-process job (run `cli retention` from cron instead) |
 | `ADMIN_API_TOKEN` | | — | ≥24 chars; enables `/admin/*` (moderation, promo grants). Send as `x-admin-token` |
 
@@ -77,7 +77,7 @@ RevenueCat was chosen over hand-rolled StoreKit/Play receipt validation: one SDK
 
 **App Store Connect**
 1. Paid Applications Agreement, tax and banking completed.
-2. Create the app (`app.zynk`), a subscription group "ZYNK Plus", products `zynk_plus_monthly` (1 month, €1.99) and `zynk_plus_annual` (1 year, €14.99), with localized names/descriptions and review screenshots.
+2. Create the app (`app.zynk`), a subscription group "Speow Plus", products `zynk_plus_monthly` (1 month, €1.99) and `zynk_plus_annual` (1 year, €14.99), with localized names/descriptions and review screenshots.
 3. Create an In-App Purchase key (App Store Connect API / IAP key) and upload it to RevenueCat; set the App Store Server Notifications URL to RevenueCat's.
 4. Create sandbox testers.
 
@@ -125,7 +125,7 @@ Local native builds (`npx expo run:ios|android`) need Xcode / Android Studio.
 * Container: `docker build -f apps/server/Dockerfile .` → `node dist/index.js` (port 4000). Or `npm run build -w @zynk/server && npm start -w @zynk/server`.
 * Needs: managed PostgreSQL, HTTPS termination, `TRUST_PROXY=true`, `PUBLIC_URL`, `PUSH_PROVIDER=expo`, RevenueCat variables.
 * Health check: `GET /health`.
-* Rate limits are in-memory per instance (per-user Zynk/request/report limits are in the database and global). For multiple instances, add a Redis store to `@fastify/rate-limit`.
+* Rate limits are in-memory per instance (per-user Speow/request/report limits are in the database and global). For multiple instances, add a Redis store to `@fastify/rate-limit`.
 * The retention job runs in each instance; it is idempotent. Prefer a single cron (`npm run cli -w @zynk/server -- retention`) with `RETENTION_INTERVAL_MINUTES=0` at scale.
 * Invite links: `GET /i/:code` serves a small landing page that opens `zynk://invite/<code>`. For tap-to-open without the page, configure iOS Universal Links (`ZYNK_LINK_DOMAIN`, `apple-app-site-association`) and Android App Links (`assetlinks.json`) on your domain.
 
@@ -144,14 +144,37 @@ Local native builds (`npx expo run:ios|android`) need Xcode / Android Studio.
 
 No other paid services are used. Avatars are stored in Postgres to avoid object storage at launch; move them to S3-compatible storage with a CDN if the user base grows.
 
+## Brand identifiers kept from the previous name
+
+The app was rebranded from ZYNK to **Speow!**. Everything users see says Speow!,
+but these identifiers intentionally keep `zynk` because changing them would
+break existing installs, credentials, store records, links or data:
+
+| Identifier | Value | Why it stays |
+|---|---|---|
+| iOS bundle id / Android package | `app.zynk` (`app.zynk.dev`) | Changing it creates a *new* app: existing installs, App Store / Play listings, APNs/FCM credentials, RevenueCat app config and Keychain data would not carry over |
+| EAS slug | `zynk` | Tied to the EAS project and push credentials |
+| URL scheme | `zynk://` | Already-shared invite links, push payload deep links |
+| Store product ids | `zynk_plus_monthly`, `zynk_plus_annual`, `zynk_plus:*` | Store product ids can never be renamed; display names can |
+| Sound files / Android channel ids | `zynk_*.wav`, channel `zynk_<sound>` | Android channel ids are immutable on installed devices; APNs payloads reference file names |
+| Push data `type: 'zynk'`, category `zynk` | | Read by installed app versions |
+| DB tables/columns, API routes | `zynks`, `zynk_push`, `/zynks` | Schema/API unchanged by design |
+| Session storage key | `zynk.session` | Renaming would sign everyone out |
+| Workspaces, env vars, components | `@zynk/*`, `ZYNK_*`, `ZynkButton`… | Internal only |
+
+If you still want a new bundle id/scheme (e.g. before the very first store release,
+when no users exist yet), change `app.config.ts`, register new store records and
+RevenueCat apps, regenerate push credentials and add the new scheme to
+`urlToPath`/the invite page while keeping `zynk://` for old links.
+
 ## Status and known limitations
 
 **Verified in this environment**
-- Shared: 19 unit tests (entitlements, catalogs, WCAG contrast, personalization precedence, usernames).
-- Server: 54 integration tests against real PostgreSQL 16 (auth, sessions, profiles/avatars, friends, invites, blocks/mutes/reports, moderation, Zynk send/idempotency/cooldowns/limits/no quota, activity, push decisions and token invalidation, premium enforcement, expiry/revocation, purchase sync/webhooks, outages, account deletion, retention, CORS, rate-limit bypass).
+- Shared: 20 unit tests (entitlements, catalogs, WCAG contrast, personalization precedence, usernames).
+- Server: 55 integration tests against real PostgreSQL 16 (auth, sessions, profiles/avatars, friends, invites, blocks/mutes/reports, moderation, Speow send/idempotency/cooldowns/limits/no quota, activity, push decisions and token invalidation, premium enforcement, expiry/revocation, purchase sync/webhooks, outages, account deletion, retention, CORS, rate-limit bypass).
 - Mobile: 10 jest-expo tests (theme contrast fallback, deep-link allowlist, purchase error mapping, double-tap protection, idempotent retry, cooldown).
 - Typecheck and lint clean across workspaces; server production bundle builds and boots; iOS and Android JS bundles export; `expo prebuild` generates both native projects with sounds, channels, permissions and URL scheme.
-- UI exercised in a browser preview (react-native-web) against the live API: login, friends, Zynk send animation, incoming Zynk overlay via polling, activity, add friends, Plus screen, appearance (Night + Daylight).
+- UI exercised in a browser preview (react-native-web) against the live API: login, friends, Speow send animation, incoming Speow overlay via polling, activity, add friends, Plus screen, appearance (Dark + Light).
 
 **Not verified (needs credentials/devices)**
 - Native compilation and running on iOS/Android devices (no Xcode/Android SDK here).

@@ -5,7 +5,7 @@
  *    Selections are kept when a subscription lapses, so re-subscribing restores
  *    them, but they silently fall back to Free defaults in the meantime.
  * 2. On the receiving side, the recipient's settings always win. A sender's
- *    sound/effect/color travels with the Zynk as a *suggestion*.
+ *    sound/effect/color travels with the Speow as a *suggestion*.
  */
 import {
   DEFAULTS,
@@ -57,7 +57,7 @@ export function effectiveSelection(sel: PersonalizationSelection, features: Feat
 // ------------------------------------------------------------ incoming sound
 
 export interface RecipientSoundSettings {
-  /** Master switch for Zynk sounds on this device/account. */
+  /** Master switch for Speow sounds on this device/account. */
   soundsEnabled: boolean;
   /** Whether friends' chosen sounds may play. */
   allowSenderSounds: boolean;
@@ -74,7 +74,7 @@ export interface IncomingSoundInput {
 }
 
 /**
- * Which sound (if any) a received Zynk should use. Returns `null` for silence.
+ * Which sound (if any) a received Speow should use. Returns `null` for silence.
  * Note: this is a *request* to the device. The OS (silent switch, Focus/DND,
  * notification permission) always has the final word.
  */

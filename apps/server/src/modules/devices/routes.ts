@@ -8,7 +8,7 @@ export function deviceRoutes(app: FastifyInstance, ctx: AppContext) {
   const auth = { preHandler: ctx.requireAuth };
 
   // Upsert: a token always belongs to the most recent account/session that registered it,
-  // so a shared device never receives the previous user's Zynks.
+  // so a shared device never receives the previous user's Speows.
   app.post('/devices', auth, async (req, reply) => {
     const { userId, sessionId } = authOf(req);
     const body = parse(registerDeviceSchema, req.body);

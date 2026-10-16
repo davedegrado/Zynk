@@ -7,7 +7,7 @@ import { Text } from './Text';
 export function PlusBadge({ locked }: { locked?: boolean }) {
   const t = useAppTheme();
   return (
-    <View style={[styles.badge, { backgroundColor: t.colors.text }]} accessibilityLabel={locked ? 'ZYNK Plus, locked' : 'ZYNK Plus'}>
+    <View style={[styles.badge, { backgroundColor: t.colors.text }]} accessibilityLabel={locked ? 'Speow Plus, locked' : 'Speow Plus'}>
       {locked ? <Icon name="lock" size={12} color={t.colors.background} /> : null}
       <Text variant="label" style={{ color: t.colors.background, fontSize: 10, lineHeight: 12 }}>Plus</Text>
     </View>

@@ -2,7 +2,7 @@
   "name": "zynk",
   "private": true,
   "version": "0.1.0",
-  "description": "ZYNK \u2014 MAKE SOME NOISE. A playful signal app for friends.",
+  "description": "Speow! — send a quick signal to a friend, no conversation required.",
   "workspaces": [
     "apps/*",
     "packages/*",

@@ -20,7 +20,7 @@ export default function BlockedUsers() {
     onError: (e) => toast(errorMessage(e), 'error'),
   });
   return (
-    <Screen back title="Blocked users" subtitle="Blocked people can't find you, add you or Zynk you. They aren't notified.">
+    <Screen back title="Blocked users" subtitle="Blocked people can't find you, add you or send you a Speow. They aren't notified.">
       {blocks.isLoading ? (
         <Loading />
       ) : !blocks.data?.length ? (

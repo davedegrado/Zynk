@@ -14,9 +14,9 @@ export default function NotificationSettings() {
   }, []);
   if (!prefs) return <Screen back title="Notifications"><Text tone="muted">Loading…</Text></Screen>;
   return (
-    <Screen back title="Notifications" subtitle="Zynks always appear in Activity, whatever you choose here.">
+    <Screen back title="Notifications" subtitle="Speows always appear in Activity, whatever you choose here.">
       {perm && perm !== 'granted' ? (
-        <Section footer={perm === 'denied' ? 'Notifications are turned off for ZYNK in system settings.' : 'ZYNK has not asked for permission yet.'}>
+        <Section footer={perm === 'denied' ? 'Notifications are turned off for Speow! in system settings.' : 'Speow! has not asked for permission yet.'}>
           <Text style={{ padding: 16 }}>System notifications are off.</Text>
           {perm === 'denied' ? (
             <Button title="Open system settings" variant="secondary" onPress={() => void Linking.openSettings()} style={{ margin: 16, marginTop: 0 }} />
@@ -28,12 +28,12 @@ export default function NotificationSettings() {
       <Section title="Push">
         <ToggleRow title="All notifications" subtitle="Master switch for this account" value={prefs.pushEnabled} onChange={(v) => update.mutate({ pushEnabled: v })} />
         <Divider />
-        <ToggleRow title="Zynks" value={prefs.zynkPush} disabled={!prefs.pushEnabled} onChange={(v) => update.mutate({ zynkPush: v })} />
+        <ToggleRow title="Speows" value={prefs.zynkPush} disabled={!prefs.pushEnabled} onChange={(v) => update.mutate({ zynkPush: v })} />
         <Divider />
         <ToggleRow title="Friend requests" value={prefs.friendRequestPush} disabled={!prefs.pushEnabled} onChange={(v) => update.mutate({ friendRequestPush: v })} />
       </Section>
       <Section title="In the app" footer="Sounds follow your phone's silent mode and volume. To mute a single friend, open their profile.">
-        <ToggleRow title="Zynk sounds" value={prefs.soundsEnabled} onChange={(v) => update.mutate({ soundsEnabled: v })} />
+        <ToggleRow title="Speow sounds" value={prefs.soundsEnabled} onChange={(v) => update.mutate({ soundsEnabled: v })} />
         <Divider />
         <ToggleRow title="Haptics" subtitle="Vibration when you send or receive" value={prefs.haptics} onChange={(v) => update.mutate({ haptics: v })} />
       </Section>

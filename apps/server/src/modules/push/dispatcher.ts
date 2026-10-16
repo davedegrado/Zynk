@@ -13,8 +13,8 @@ interface DeviceRow { id: string; token: string; platform: 'ios' | 'android' }
 
 /**
  * Delivers push notifications after the triggering request has been answered.
- * Persisting the Zynk never depends on push: failures here only change
- * `zynks.push_status`, and the Zynk is always visible in Activity.
+ * Persisting the Speow never depends on push: failures here only change
+ * `zynks.push_status`, and the Speow is always visible in Activity.
  */
 export class PushDispatcher {
   private pending = new Set<Promise<unknown>>();
@@ -123,8 +123,8 @@ export class PushDispatcher {
     const ok = await this.sendTo(devices, (d) => ({
       to: d.token,
       platform: d.platform,
-      title: 'ZYNK!',
-      body: `${z.sender_name} zynked you${reaction ? ` ${reaction.glyph}` : ''}`,
+      title: 'Speow!',
+      body: `${z.sender_name} sent you a Speow${reaction ? ` ${reaction.glyph}` : '!'}`,
       data: { ...data, soundId: sound?.id ?? null },
       iosSound: sound ? `${sound.file}.wav` : null,
       androidChannelId: androidChannelFor(sound?.id ?? null),
@@ -148,7 +148,7 @@ export class PushDispatcher {
       to: d.token,
       platform: d.platform,
       title: kind === 'friend_request' ? 'New friend request' : 'You have a new friend',
-      body: kind === 'friend_request' ? `${name} wants to be friends on ZYNK` : `${name} accepted your request. Send a Zynk!`,
+      body: kind === 'friend_request' ? `${name} wants to be friends on Speow!` : `${name} accepted your request. Send a Speow!`,
       data,
       iosSound: 'default',
       androidChannelId: 'social',

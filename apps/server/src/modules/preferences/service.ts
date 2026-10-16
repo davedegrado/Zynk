@@ -62,7 +62,7 @@ export function assertSelectable(patch: PreferencesPatch, features: readonly Fea
     const item = lookup(id);
     if (!item || item.retired) throw new ApiError('unknown_item', `Unknown ${field}: ${id}`, { fields: { [field]: 'Unknown item' } });
     if (!isSelectable(lookup, id, features)) {
-      throw new ApiError('feature_locked', 'This is a ZYNK Plus feature', { feature: item.requiredFeature ?? undefined });
+      throw new ApiError('feature_locked', 'This is a Speow Plus feature', { feature: item.requiredFeature ?? undefined });
     }
   }
 }

@@ -10,7 +10,7 @@ import { playSound } from '../../lib/sounds';
 import { useToast } from '../ui';
 
 /**
- * Sends a Zynk with double-tap protection:
+ * Sends a Speow with double-tap protection:
  *  - a ref lock ignores taps while a request is in flight,
  *  - every logical send has one idempotency nonce, reused on network retries,
  *  - the server additionally enforces cooldowns and dedupes by nonce.
@@ -44,7 +44,7 @@ export function useSendZynk(recipientId: string, opts: { onSent?: (r: SendZynkRe
         setCooldownUntil(Date.now() + (err.retryAfterMs ?? 2000));
         toast(err.message, 'info');
       } else {
-        toast(err instanceof ApiError ? err.message : 'Zynk failed to send', 'error');
+        toast(err instanceof ApiError ? err.message : 'Your Speow didn’t send. Try again.', 'error');
       }
     },
     onSettled: () => {

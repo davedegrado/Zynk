@@ -3,7 +3,7 @@
  * database and sent across the wire — never rename an id, only add new ones or
  * mark old ones `retired`.
  *
- * `requiredFeature: null` means the item is part of ZYNK Free.
+ * `requiredFeature: null` means the item is part of Speow! Free.
  */
 import type { FeatureId } from './features';
 import { BRAND } from './brand';
@@ -27,9 +27,10 @@ export interface SoundItem extends CatalogItem {
 
 export const DEFAULT_SOUND_ID = 'zynk_classic';
 
-/** All sounds are original, synthesized for ZYNK (see tools/assets/generate-sounds.mjs). */
+/** All sounds are original, synthesized for Speow! (see tools/assets/generate-sounds.mjs). File names keep
+ * the legacy `zynk_` prefix: they are Android channel/res ids and APNs sound names on installed apps. */
 export const SOUNDS: readonly SoundItem[] = [
-  { id: 'zynk_classic', file: 'zynk_classic', name: 'Classic Zynk', description: 'The signature double pop.', durationMs: 420, requiredFeature: null },
+  { id: 'zynk_classic', file: 'zynk_classic', name: 'Classic Speow', description: 'The signature double pop.', durationMs: 420, requiredFeature: null },
   { id: 'zynk_boing', file: 'zynk_boing', name: 'Boing', description: 'A springy cartoon bounce.', durationMs: 600, requiredFeature: 'custom_sounds' },
   { id: 'zynk_laser', file: 'zynk_laser', name: 'Laser', description: 'Pew. Retro sci-fi zap.', durationMs: 380, requiredFeature: 'custom_sounds' },
   { id: 'zynk_coin', file: 'zynk_coin', name: 'Coin', description: 'Bright 8-bit pickup.', durationMs: 360, requiredFeature: 'custom_sounds' },
@@ -125,24 +126,25 @@ export interface ThemeItem extends CatalogItem {
   defaultAccentId: string;
 }
 
-const { night, offWhite } = BRAND.colors;
+const { ink, white } = BRAND.colors;
 
 export const THEMES: readonly ThemeItem[] = [
   {
+    // Ids are persisted in user preferences; only display names follow the brand.
     id: 'night',
-    name: 'Night',
+    name: 'Dark',
     scheme: 'dark',
     requiredFeature: null,
     defaultAccentId: 'lime',
-    colors: { background: night, surface: '#16161F', surfaceAlt: '#20202C', border: '#2C2C3A', text: offWhite, textMuted: '#A6A6B4', danger: '#FF5C6C', onDanger: night },
+    colors: { background: ink, surface: '#1C1C1C', surfaceAlt: '#262626', border: '#333333', text: white, textMuted: '#A3A3A3', danger: '#FF5C6C', onDanger: ink },
   },
   {
     id: 'daylight',
-    name: 'Daylight',
+    name: 'Light',
     scheme: 'light',
     requiredFeature: null,
     defaultAccentId: 'lime',
-    colors: { background: offWhite, surface: '#FFFFFF', surfaceAlt: '#ECECE4', border: '#D6D6CC', text: night, textMuted: '#55556A', danger: '#C4122F', onDanger: '#FFFFFF' },
+    colors: { background: white, surface: '#F6F6F6', surfaceAlt: '#EBEBEB', border: '#DEDEDE', text: ink, textMuted: '#5C5C5C', danger: '#C4122F', onDanger: '#FFFFFF' },
   },
   {
     id: 'ultraviolet',
@@ -150,7 +152,7 @@ export const THEMES: readonly ThemeItem[] = [
     scheme: 'dark',
     requiredFeature: 'custom_themes',
     defaultAccentId: 'purple',
-    colors: { background: '#120A22', surface: '#1D1233', surfaceAlt: '#291A47', border: '#3A2860', text: offWhite, textMuted: '#B9AED6', danger: '#FF5C6C', onDanger: night },
+    colors: { background: '#120A22', surface: '#1D1233', surfaceAlt: '#291A47', border: '#3A2860', text: white, textMuted: '#B9AED6', danger: '#FF5C6C', onDanger: ink },
   },
   {
     id: 'deep_sea',
@@ -158,7 +160,7 @@ export const THEMES: readonly ThemeItem[] = [
     scheme: 'dark',
     requiredFeature: 'custom_themes',
     defaultAccentId: 'blue',
-    colors: { background: '#04121C', surface: '#0A1F2E', surfaceAlt: '#112B3F', border: '#1B3B54', text: offWhite, textMuted: '#9DB8CC', danger: '#FF5C6C', onDanger: night },
+    colors: { background: '#04121C', surface: '#0A1F2E', surfaceAlt: '#112B3F', border: '#1B3B54', text: white, textMuted: '#9DB8CC', danger: '#FF5C6C', onDanger: ink },
   },
   {
     id: 'bubblegum',
@@ -166,7 +168,7 @@ export const THEMES: readonly ThemeItem[] = [
     scheme: 'light',
     requiredFeature: 'custom_themes',
     defaultAccentId: 'pink',
-    colors: { background: '#FFF1FA', surface: '#FFFFFF', surfaceAlt: '#FBE0F1', border: '#F0C6E2', text: night, textMuted: '#5E4A5A', danger: '#C4122F', onDanger: '#FFFFFF' },
+    colors: { background: '#FFF1FA', surface: '#FFFFFF', surfaceAlt: '#FBE0F1', border: '#F0C6E2', text: ink, textMuted: '#5E4A5A', danger: '#C4122F', onDanger: '#FFFFFF' },
   },
 ];
 
@@ -181,22 +183,22 @@ export interface ColorSwatch extends CatalogItem {
 }
 
 export const ACCENTS: readonly ColorSwatch[] = [
-  { id: 'lime', name: 'Acid Lime', color: BRAND.colors.acidLime, ink: night, requiredFeature: null },
-  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: night, requiredFeature: 'custom_themes' },
-  { id: 'cloud', name: 'Off White', color: offWhite, ink: night, requiredFeature: 'custom_themes' },
+  { id: 'lime', name: 'Acid Lime', color: BRAND.colors.lime, ink: ink, requiredFeature: null },
+  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'cloud', name: 'White', color: white, ink: ink, requiredFeature: 'custom_themes' },
 ];
 
 export const BUBBLE_COLORS: readonly ColorSwatch[] = [
-  { id: 'lime', name: 'Acid Lime', color: BRAND.colors.acidLime, ink: night, requiredFeature: null },
-  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: night, requiredFeature: 'custom_themes' },
-  { id: 'cloud', name: 'Off White', color: offWhite, ink: night, requiredFeature: 'custom_themes' },
-  { id: 'ink', name: 'Night', color: '#1E1E2A', ink: offWhite, requiredFeature: 'custom_themes' },
+  { id: 'lime', name: 'Acid Lime', color: BRAND.colors.lime, ink: ink, requiredFeature: null },
+  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'cloud', name: 'White', color: white, ink: ink, requiredFeature: 'custom_themes' },
+  { id: 'ink', name: 'Ink', color: '#2A2A2A', ink: white, requiredFeature: 'custom_themes' },
 ];
 
 // ---------------------------------------------------------------- effects

@@ -1,4 +1,11 @@
-# ZYNK architecture
+# Speow! architecture
+
+> **Naming note.** The product is **Speow!** (core action: *a Speow*). The codebase
+> predates the rebrand and keeps its original internal identifiers — `zynks` table,
+> `/zynks` routes, `@zynk/*` packages, `Zynk*` components, `zynk_*` sound files,
+> `ZYNK_*` env vars, the `zynk://` URL scheme and the `app.zynk` bundle id. They are
+> persistent or internal and are deliberately not renamed; see
+> [SETUP.md](SETUP.md#brand-identifiers-kept-from-the-previous-name).
 
 The repository started empty, so the stack was chosen fresh:
 
@@ -51,24 +58,24 @@ apps/mobile/src
   theme/              tokens + ThemeProvider (driven by server-effective preferences)
 ```
 
-## The Zynk flow
+## The Speow flow
 
 `POST /zynks { recipientId, clientNonce, reactionId?, effectId? }`
 
-1. **Validate** body (zod). Self-Zynks rejected.
-2. **Idempotency**: `(sender_id, client_nonce)` is unique. A retry returns the original Zynk (`duplicate: true`, HTTP 200). The app generates one nonce per tap and reuses it for its automatic network retry.
+1. **Validate** body (zod). Self-sends rejected.
+2. **Idempotency**: `(sender_id, client_nonce)` is unique. A retry returns the original Speow (`duplicate: true`, HTTP 200). The app generates one nonce per tap and reuses it for its automatic network retry.
 3. **Relationship**: recipient must be active, a friend, and not blocked in either direction. Blocks are reported as `not_friends` so they can't be probed.
 4. **Entitlements**: the reaction pack and effect are checked against the *sender's* verified features. The sender's stored outgoing sound / bubble color / effect are applied only if still entitled (`effectiveSelection`), otherwise Free defaults.
 5. **Anti-abuse** (inside a transaction holding a per-sender advisory lock, so concurrent requests can't race past limits): per-friend cooldown (2s), per-friend/min (12), per-sender/min (60), per-sender/hour (600). All configurable; none are daily quotas.
 6. **Persist** the event (with a Unicode fallback glyph for the reaction).
-7. **Respond**, then **push asynchronously** (`PushDispatcher`). Push outcome is recorded on the Zynk (`push_status`, `push_skip_reason`) but never affects delivery: the Zynk is always in Activity.
+7. **Respond**, then **push asynchronously** (`PushDispatcher`). Push outcome is recorded on the Speow (`push_status`, `push_skip_reason`) but never affects delivery: the Speow is always in Activity.
 
 Client-side: `useSendZynk` locks out repeated taps while a request is in flight and honours server `retryAfterMs`. The sender gets an instant burst animation, haptic and (quiet) outgoing sound.
 
 ### Receiving
 
-* **Push** (if enabled + permitted): the dispatcher skips when the recipient disabled push/Zynk push, muted the sender, or a push from the same sender went out in the last 10s (collapse). It resolves the sound with the *recipient's* settings (below) and sets the iOS badge to the unseen count.
-* **In-app**: Activity polls every 8s while the app is foregrounded, and a foreground push triggers an immediate fetch. New Zynks show the `IncomingZynkOverlay` (animation + sound + "Zynk back"). Foreground pushes for Zynks suppress the system banner/sound so the user isn't double-notified.
+* **Push** (if enabled + permitted): the dispatcher skips when the recipient disabled push/Speow push, muted the sender, or a push from the same sender went out in the last 10s (collapse). It resolves the sound with the *recipient's* settings (below) and sets the iOS badge to the unseen count.
+* **In-app**: Activity polls every 8s while the app is foregrounded, and a foreground push triggers an immediate fetch. New Speows show the `IncomingZynkOverlay` (animation + sound + "Speow back"). Foreground pushes for Speows suppress the system banner/sound so the user isn't double-notified.
 * **Deep links**: push data carries `zynk://activity?zynk=<id>` / `zynk://user/<id>` / `zynk://add`. Only an allowlisted set of paths is routed (`urlToPath`).
 
 ## Entitlements
@@ -100,7 +107,7 @@ The client never sends receipts or "I'm premium" claims; a forged request to `/b
 
 `resolveIncomingSound` (used by the push dispatcher *and* the in-app overlay):
 
-1. Recipient turned Zynk sounds off → silent (iOS `sound: null`, Android `zynk_silent` channel).
+1. Recipient turned Speow sounds off → silent (iOS `sound: null`, Android `zynk_silent` channel).
 2. Recipient assigned a sound to this friend **and** currently owns `custom_sounds` → that sound.
 3. Recipient allows friends' sounds and the sender's sound exists → sender's sound (no ownership needed to *hear* it).
 4. Otherwise the recipient's own (effective) incoming sound.
@@ -115,20 +122,20 @@ Reactions: everyone can *see* every bundled pack. Unknown refs (a pack added in 
 * They are bundled in the binary via the `expo-notifications` config plugin. **Notification sounds must be bundled**: neither APNs nor FCM can play arbitrary downloaded audio.
 * **iOS**: the push names the file (`zynk_boing.wav`). iOS plays it only if notifications/sounds are allowed and the device isn't silenced or in a Focus that blocks it.
 * **Android 8+**: sound is a property of the *notification channel*, so each sound has a channel (`zynk_boing`, …, `zynk_silent`). Users can override every channel in system settings, which always wins.
-* **In-app** playback uses `expo-audio` with `playsInSilentMode: false` (iOS silent switch respected) and mixes with other audio. On Android, in-app sounds follow media volume; users can turn them off in Settings → Notifications → Zynk sounds.
+* **In-app** playback uses `expo-audio` with `playsInSilentMode: false` (iOS silent switch respected) and mixes with other audio. On Android, in-app sounds follow media volume; users can turn them off in Settings → Notifications → Speow sounds.
 * Adding a sound: append to `SOUNDS` in `catalog.ts`, add the file + `require` in `lib/sounds.ts` and `app.config.ts`. New sounds reach devices only with a new binary (store release), since notification sounds can't be delivered OTA.
 
 ## Safety & privacy
 
-* Blocks are enforced in every query path (search, profiles, avatars, requests, Zynks, activity) — not just hidden in UI.
-* Reports: one open report per (reporter, reported) pair, rate-limited per day, optional Zynk evidence restricted to Zynks between the two users, username snapshot kept for moderation after account deletion. `moderation_actions` is an audit log. Moderators use the token-protected admin API; nothing about reports is visible to users.
+* Blocks are enforced in every query path (search, profiles, avatars, requests, Speows, activity) — not just hidden in UI.
+* Reports: one open report per (reporter, reported) pair, rate-limited per day, optional Speow evidence restricted to Speows between the two users, username snapshot kept for moderation after account deletion. `moderation_actions` is an audit log. Moderators use the token-protected admin API; nothing about reports is visible to users.
 * No contacts access (the permission is explicitly blocked on Android). Discovery is by exact-prefix username or invite link only.
 * No public counts. Profiles expose id, username, display name, avatar.
 * Avatars are re-encoded on device (EXIF/GPS stripped), size-limited (512 KB), type-sniffed server-side, and served only to authenticated, non-blocked users.
 * Logs omit IPs, query strings, bodies, tokens and passwords.
 * Device tokens are tied to the session that registered them: logout or password change removes them; re-registration by another account moves the token; `DeviceNotRegistered` receipts invalidate them.
 * Account deletion (password-confirmed) hard-deletes the user and cascades to all personal data; RevenueCat customer data is deleted best-effort. Store subscriptions must be cancelled by the user in the store (the app warns).
-* Retention (`jobs/retention.ts`, hourly): Zynks older than `ZYNK_RETENTION_DAYS` (180), expired sessions, invalidated tokens (30d), processed billing events (90d), answered friend requests (90d).
+* Retention (`jobs/retention.ts`, hourly): Speows older than `ZYNK_RETENTION_DAYS` (180), expired sessions, invalidated tokens (30d), processed billing events (90d), answered friend requests (90d).
 
 ## Data model
 
@@ -145,8 +152,9 @@ See `apps/server/migrations/001_initial.sql`. Key constraints:
 ## Design system
 
 Tokens live in `packages/shared/src/brand.ts` + `apps/mobile/src/theme/tokens.ts`:
-Night `#0B0B12` + Acid Lime `#DFFF00` primary; Off White, Purple, Electric Blue, Pink accents.
-Type: **Unbounded** (display/wordmark) + **Space Grotesk** (UI), both OFL via `@expo-google-fonts`.
-Dark (Night) is the primary experience; Daylight is a full light theme where lime elements get an ink outline for contrast.
+Near-black `#111111` + Acid Lime `#D7FF36` primary, White `#FFFFFF`, neutral grays (`gray100…gray900`) for secondary text, dividers and disabled states; Purple, Electric Blue and Pink remain as secondary accents for premium themes/colors.
+Type: **Unbounded** ExtraBold (heavy display face for the `Speow!` wordmark and headings) + **Space Grotesk** (UI), both OFL via `@expo-google-fonts`.
+Logo: a compact speech bubble with a small impact burst popping off its corner and a `!` punched out — geometry in `tools/assets/logo.mjs`, rendered in-app from `assets/brand/logo-paths.json` and rasterized into every icon. Works in one color (`logo-mono.svg`).
+Dark (theme id `night`) is the primary experience; Light (id `daylight`) is a full light theme where lime elements get an ink outline for contrast. Premium themes (Ultraviolet, Deep Sea, Bubblegum) keep the Speow! logo, type and lime-first accents.
 Catalog tests enforce WCAG AA for every swatch/ink pair and theme text; `accentText` falls back to the theme's text color when an accent isn't readable as text.
 Red/green "status" hues are excluded from user colors so personalization can't imitate system/security indicators.

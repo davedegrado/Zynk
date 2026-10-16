@@ -4,7 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, w
 import Svg, { Circle, Ellipse, Path, Polygon, Rect } from 'react-native-svg';
 import { BRAND, describeReaction, getReaction } from '@zynk/shared';
 
-const { night: N, acidLime: L, pink: P, electricBlue: B, purple: U, offWhite: W } = BRAND.colors;
+const { ink: N, lime: L, pink: P, electricBlue: B, purple: U, white: W } = BRAND.colors;
 const stroke = { stroke: N, strokeWidth: 5, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const };
 
 /** Custom-drawn Y2K sticker pack (original vector art, 100×100 viewBox). */

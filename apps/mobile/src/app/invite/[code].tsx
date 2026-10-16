@@ -39,11 +39,11 @@ export default function InviteScreen() {
         <View style={{ alignItems: 'center', gap: space.md }}>
           <Avatar user={invite.data} size={104} />
           <Text variant="title" center>{invite.data.displayName}</Text>
-          <Text tone="muted">@{invite.data.username} wants to be friends on ZYNK</Text>
+          <Text tone="muted">@{invite.data.username} wants to be friends on Speow!</Text>
           {invite.data.relationship === 'self' ? (
             <Text tone="muted">This is your own invite link.</Text>
           ) : invite.data.relationship === 'friend' ? (
-            <Button title="You're already friends — Zynk them" icon="bolt" onPress={() => router.replace(`/user/${invite.data!.id}`)} />
+            <Button title="You're already friends — send a Speow" icon="bolt" onPress={() => router.replace(`/user/${invite.data!.id}`)} />
           ) : (
             <Button title="Add friend" icon="add" onPress={() => add.mutate()} loading={add.isPending} />
           )}

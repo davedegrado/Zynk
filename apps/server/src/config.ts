@@ -24,7 +24,7 @@ const envSchema = z.object({
   ZYNK_PAIR_MAX_PER_MINUTE: int(12),
   ZYNK_SENDER_MAX_PER_MINUTE: int(60),
   ZYNK_SENDER_MAX_PER_HOUR: int(600),
-  /** Collapse pushes from the same sender within this window (Zynks still land in Activity). */
+  /** Collapse pushes from the same sender within this window (Speows still land in Activity). */
   ZYNK_PUSH_COLLAPSE_MS: int(10_000),
   FRIEND_REQUESTS_MAX_PER_HOUR: int(40),
   REPORTS_MAX_PER_DAY: int(20),

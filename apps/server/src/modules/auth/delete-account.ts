@@ -3,7 +3,7 @@ import { withTransaction } from '../../db/pool';
 
 /**
  * Hard-deletes a user. Foreign keys cascade to sessions, device tokens,
- * friendships, requests, blocks, mutes, Zynks (sent and received), preferences,
+ * friendships, requests, blocks, mutes, Speows (sent and received), preferences,
  * subscriptions and grants. Reports keep a username snapshot with user ids
  * nulled out, so moderation history survives without retaining the account.
  *

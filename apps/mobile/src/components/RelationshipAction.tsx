@@ -34,7 +34,7 @@ export function RelationshipAction({ profile }: { profile: UserProfile }) {
   });
   switch (profile.relationship) {
     case 'friend':
-      return <Button title="Zynk" icon="bolt" size="sm" onPress={() => router.push(`/user/${profile.id}`)} />;
+      return <Button title="Speow" icon="bolt" size="sm" onPress={() => router.push(`/user/${profile.id}`)} />;
     case 'request_sent':
       return <Button title="Requested" size="sm" variant="secondary" disabled />;
     case 'request_received':

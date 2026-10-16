@@ -41,7 +41,7 @@ export async function playSound(soundId: string | null | undefined, volume = 1) 
     await player.seekTo(0);
     player.play();
   } catch {
-    // Audio is a nice-to-have; never let it break a Zynk.
+    // Audio is a nice-to-have; never let it break a Speow.
   }
 }
 

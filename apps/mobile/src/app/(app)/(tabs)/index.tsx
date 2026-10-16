@@ -16,7 +16,7 @@ import { useAppTheme } from '../../../theme/ThemeProvider';
 function FriendRow({ friend }: { friend: FriendSummary }) {
   const t = useAppTheme();
   const toast = useToast();
-  const { send, sending } = useSendZynk(friend.id, { onSent: (r) => !r.duplicate && toast(`Zynked ${friend.displayName}!`, 'success') });
+  const { send, sending } = useSendZynk(friend.id, { onSent: (r) => !r.duplicate && toast(`You sent ${friend.displayName} a Speow!`, 'success') });
   return (
     <Pressable
       accessibilityRole="button"
@@ -36,7 +36,7 @@ function FriendRow({ friend }: { friend: FriendSummary }) {
         </Text>
       </View>
       <CountBadge count={friend.unseenFromThem} />
-      <ZynkMini onPress={() => send(null)} disabled={sending} accessibilityLabel={`Zynk ${friend.displayName}`} />
+      <ZynkMini onPress={() => send(null)} disabled={sending} accessibilityLabel={`Send ${friend.displayName} a Speow`} />
     </Pressable>
   );
 }
@@ -62,13 +62,13 @@ export default function FriendsScreen() {
       ) : !friends.data?.length ? (
         <EmptyState
           title="It's quiet in here"
-          body="Add a friend by username or share your invite link. Then make some noise."
+          body="Add a friend by username or share your invite link. Then send your first Speow."
           action="Add friends"
           onAction={() => router.push('/add')}
         />
       ) : (
         <View style={{ gap: space.sm }}>
-          <Text variant="label" tone="muted">Tap the burst to Zynk</Text>
+          <Text variant="label" tone="muted">Tap the bubble to send a Speow</Text>
           {friends.data.map((f) => (
             <FriendRow key={f.id} friend={f} />
           ))}

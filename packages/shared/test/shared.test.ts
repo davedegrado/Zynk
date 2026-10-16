@@ -149,3 +149,15 @@ describe('usernames', () => {
     }
   });
 });
+
+describe('brand', () => {
+  it('uses the Speow! identity and palette', async () => {
+    const { BRAND, THEMES } = await import('../src');
+    expect(BRAND.name).toBe('Speow!');
+    expect(BRAND.colors).toMatchObject({ lime: '#D7FF36', ink: '#111111', white: '#FFFFFF' });
+    const dark = THEMES.find((t) => t.id === 'night')!;
+    expect(dark.colors.background).toBe('#111111');
+    // Acid lime on near-black must be comfortably readable (it's the primary accent).
+    expect(contrastRatio(BRAND.colors.lime, BRAND.colors.ink)).toBeGreaterThanOrEqual(7);
+  });
+});

@@ -53,7 +53,7 @@ export default function PlusScreen() {
     switch (o.kind) {
       case 'success':
         setPending(false);
-        toast('Welcome to ZYNK Plus! ⚡', 'success');
+        toast('Welcome to Speow Plus! ⚡', 'success');
         break;
       case 'verifying':
         setPending(true);
@@ -81,7 +81,7 @@ export default function PlusScreen() {
   };
 
   return (
-    <Screen back title="ZYNK Plus" subtitle="More ways to make noise. Sending Zynks is — and stays — free.">
+    <Screen back title="Speow Plus" subtitle="More ways to express yourself. Sending Speows is — and stays — free.">
       <View style={styles.features}>
         {FEATURE_IDS.map((f) => (
           <Card key={f} style={styles.feature}>
@@ -149,8 +149,8 @@ export default function PlusScreen() {
           {!canBuy ? (
             <Text variant="caption" tone="muted" center>
               {!plans.data?.purchasesEnabled
-                ? 'Purchases are not available yet. Everything else in ZYNK works as usual.'
-                : 'Purchases need the App Store or Google Play version of ZYNK.'}
+                ? 'Purchases are not available yet. Everything else in Speow! works as usual.'
+                : 'Purchases need the App Store or Google Play version of the app.'}
             </Text>
           ) : null}
           {pending ? <Text variant="caption" tone="muted" center>Waiting for the store to confirm your purchase. You can leave this screen.</Text> : null}

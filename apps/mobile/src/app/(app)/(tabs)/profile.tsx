@@ -14,7 +14,7 @@ function PlusCard() {
     return (
       <Card onPress={() => router.push('/plus')} style={{ gap: space.xs, borderColor: t.colors.accent, borderWidth: 2 }}>
         <View style={styles.rowCenter}>
-          <Text variant="heading">ZYNK Plus</Text>
+          <Text variant="heading">Speow Plus</Text>
           <PlusBadge />
         </View>
         <Text tone="muted">
@@ -22,7 +22,7 @@ function PlusCard() {
             ? `Ends ${new Date(sub.expiresAt).toLocaleDateString()}. Renew anytime.`
             : sub?.status === 'in_grace'
               ? 'There was a billing problem — update your payment method in the store to keep Plus.'
-              : 'Thanks for supporting ZYNK. Manage your plan here.'}
+              : 'Thanks for supporting Speow! Manage your plan here.'}
         </Text>
       </Card>
     );
@@ -30,7 +30,7 @@ function PlusCard() {
   return (
     <Card onPress={() => router.push('/plus')} style={{ gap: space.sm, backgroundColor: t.colors.accent, borderColor: t.colors.accent }}>
       <Text variant="heading" style={{ color: t.colors.onAccent }}>Make it yours with Plus</Text>
-      <Text style={{ color: t.colors.onAccent }}>Exclusive sounds, reaction packs, colors and effects. Zynking stays free, forever.</Text>
+      <Text style={{ color: t.colors.onAccent }}>Exclusive sounds, reaction packs, colors and effects. Sending Speows stays free, forever.</Text>
     </Card>
   );
 }
@@ -55,7 +55,7 @@ export default function ProfileScreen() {
       <Section title="Personalize">
         <Row icon="sound" title="Sounds" subtitle="Incoming, outgoing and per-friend sounds" chevron onPress={() => router.push('/settings/sounds')} />
         <Divider />
-        <Row icon="palette" title="Look & effects" subtitle="Theme, colors, bubble and Zynk effects" chevron onPress={() => router.push('/settings/appearance')} />
+        <Row icon="palette" title="Look & Effects" subtitle="Theme, colors, bubble and Speow effects" chevron onPress={() => router.push('/settings/appearance')} />
       </Section>
 
       <Section title="Settings">
@@ -70,7 +70,7 @@ export default function ProfileScreen() {
         title="Log out"
         variant="ghost"
         onPress={async () => {
-          if (await confirm({ title: 'Log out?', body: 'You will stop receiving Zynk notifications on this device.', confirm: 'Log out' })) await signOut();
+          if (await confirm({ title: 'Log out?', body: 'You will stop receiving Speow notifications on this device.', confirm: 'Log out' })) await signOut();
         }}
       />
     </Screen>

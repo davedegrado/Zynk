@@ -7,7 +7,9 @@ import { useAppTheme } from '../../theme/ThemeProvider';
 import { Text } from '../ui';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const BURST = logo.layers.find((l) => l.id === 'burst')!.d;
+const FG_LAYERS = logo.layers.filter((l) => l.role === 'fg');
+// Bubble body inside the 512 viewBox (see tools/assets/logo.mjs): x 40..392, y 136..408.
+const BODY = { left: 40 / 512, top: 136 / 512, width: 352 / 512, height: 272 / 512 };
 
 interface Props {
   onPress: () => void;
@@ -17,12 +19,13 @@ interface Props {
   accessibilityLabel: string;
 }
 
-/** The prominent burst-shaped Zynk button. */
-export function ZynkButton({ onPress, disabled, size = 200, label = 'ZYNK!', accessibilityLabel }: Props) {
+/** The prominent "Send a Speow" button, shaped like the logo's bubble + burst. */
+export function ZynkButton({ onPress, disabled, size = 200, label = 'Speow!', accessibilityLabel }: Props) {
   const t = useAppTheme();
   const scale = useSharedValue(1);
   const rot = useSharedValue(0);
   const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }, { rotate: `${rot.value}deg` }] }));
+  const light = t.scheme === 'light';
   return (
     <AnimatedPressable
       accessibilityRole="button"
@@ -38,10 +41,15 @@ export function ZynkButton({ onPress, disabled, size = 200, label = 'ZYNK!', acc
       style={[{ width: size, height: size, opacity: disabled ? 0.5 : 1 }, style]}
     >
       <Svg width={size} height={size} viewBox={logo.viewBox} style={StyleSheet.absoluteFill}>
-        <Path d={BURST} fill={t.colors.accent} stroke={t.scheme === 'light' ? t.colors.text : t.colors.accent} strokeWidth={8} strokeLinejoin="round" />
+        {FG_LAYERS.map((l) => (
+          <Path key={l.id} d={l.d} fill={t.colors.accent} stroke={light ? t.colors.text : t.colors.accent} strokeWidth={light ? 10 : 0} strokeLinejoin="round" />
+        ))}
       </Svg>
-      <View style={styles.center}>
-        <Text style={{ fontFamily: fonts.display, fontSize: size * 0.17, lineHeight: size * 0.21, color: t.colors.onAccent, letterSpacing: -1, transform: [{ rotate: '-8deg' }] }}>
+      <View style={[styles.body, { left: BODY.left * size, top: BODY.top * size, width: BODY.width * size, height: BODY.height * size }]}>
+        <Text
+          allowFontScaling={false}
+          style={{ fontFamily: fonts.display, fontSize: size * 0.115, lineHeight: size * 0.15, color: t.colors.onAccent, letterSpacing: -0.5, transform: [{ rotate: '-6deg' }] }}
+        >
           {label}
         </Text>
       </View>
@@ -72,8 +80,8 @@ export function ZynkMini({ onPress, disabled, accessibilityLabel }: { onPress: (
             key={l.id}
             d={l.d}
             fill={l.role === 'cutout' ? (t.scheme === 'light' ? t.colors.text : t.colors.surface) : t.colors.accent}
-            stroke={t.scheme === 'light' && l.id === 'burst' ? t.colors.text : undefined}
-            strokeWidth={t.scheme === 'light' && l.id === 'burst' ? 16 : 0}
+            stroke={t.scheme === 'light' && l.role === 'fg' ? t.colors.text : undefined}
+            strokeWidth={t.scheme === 'light' && l.role === 'fg' ? 16 : 0}
             strokeLinejoin="round"
           />
         ))}
@@ -83,5 +91,5 @@ export function ZynkMini({ onPress, disabled, accessibilityLabel }: { onPress: (
 }
 
 const styles = StyleSheet.create({
-  center: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
+  body: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
 });

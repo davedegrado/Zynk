@@ -45,7 +45,7 @@ function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; hig
   const t = useAppTheme();
   const toast = useToast();
   const [reacting, setReacting] = useState(false);
-  const { send, sending } = useSendZynk(zynk.counterpart.id, { onSent: () => toast(`Zynked ${zynk.counterpart.displayName} back!`, 'success') });
+  const { send, sending } = useSendZynk(zynk.counterpart.id, { onSent: () => toast(`You sent ${zynk.counterpart.displayName} a Speow back!`, 'success') });
   const received = zynk.direction === 'received';
   const isNew = received && !zynk.seenAt;
   return (
@@ -56,7 +56,7 @@ function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; hig
         </Pressable>
         <View style={{ flex: 1, gap: 2 }}>
           <Text variant="bodyStrong" numberOfLines={2}>
-            {received ? `${zynk.counterpart.displayName} zynked you` : `You zynked ${zynk.counterpart.displayName}`}
+            {received ? `${zynk.counterpart.displayName} sent you a Speow!` : `You sent ${zynk.counterpart.displayName} a Speow!`}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.xs }}>
             <Icon name={received ? 'arrowIn' : 'arrowOut'} size={14} color={t.colors.textMuted} />
@@ -77,7 +77,7 @@ function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; hig
       ) : null}
       {received && showActions ? (
         <View style={styles.actions}>
-          <Button title="Zynk back" icon="bolt" size="sm" onPress={() => send(null)} loading={sending} />
+          <Button title="Speow back" icon="bolt" size="sm" onPress={() => send(null)} loading={sending} />
           <Button title={reacting ? 'Close' : 'React'} size="sm" variant="secondary" onPress={() => setReacting((v) => !v)} />
         </View>
       ) : null}
@@ -94,7 +94,7 @@ export default function ActivityScreen() {
   const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Opening Activity marks received Zynks as seen.
+  // Opening Activity marks received Speows as seen.
   useFocusEffect(
     useCallback(() => {
       const timer = setTimeout(() => {
@@ -113,7 +113,7 @@ export default function ActivityScreen() {
 
   const items = [...(activity.data?.items ?? []), ...older];
   const nextBefore = cursor === undefined ? activity.data?.nextBefore : cursor;
-  // Quick actions on the most recent Zynk from each friend keep the list calm.
+  // Quick actions on the most recent Speow from each friend keep the list calm.
   const latestReceived = new Set<string>();
   const seenFriends = new Set<string>();
   for (const z of items) {
@@ -154,9 +154,9 @@ export default function ActivityScreen() {
         <ErrorState message={errorMessage(activity.error)} onRetry={() => activity.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
-          title={filter === 'sent' ? 'Nothing sent yet' : 'No Zynks yet'}
-          body={filter === 'sent' ? 'Pick a friend and hit the big burst.' : "When friends zynk you, it'll show up here — even with notifications off."}
-          action="Go to friends"
+          title={filter === 'sent' ? 'Nothing sent yet' : 'No Speows yet'}
+          body={filter === 'sent' ? 'Pick a friend and send your first Speow.' : "When friends send you a Speow, it'll show up here — even with notifications off."}
+          action="Your friends"
           onAction={() => router.push('/')}
         />
       ) : (

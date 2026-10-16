@@ -35,7 +35,7 @@ const ok = (id = 'z1') => ({ zynk: { id, createdAt: new Date().toISOString() }, 
 queryClient.setDefaultOptions({ queries: { gcTime: Infinity, retry: false }, mutations: { gcTime: Infinity } });
 beforeEach(() => mockSendZynk.mockReset());
 
-it('ignores rapid repeated taps while a Zynk is in flight', async () => {
+it('ignores rapid repeated taps while a Speow is in flight', async () => {
   let resolve!: (v: unknown) => void;
   mockSendZynk.mockImplementation(() => new Promise((r) => (resolve = r)));
   const { result } = await renderHook(() => useSendZynk('friend-1'), { wrapper });

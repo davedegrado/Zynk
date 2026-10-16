@@ -36,7 +36,7 @@ function SoundList({ value, onSelect, defaultLabel }: { value: string | null; on
             <Pressable
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
-              accessibilityLabel={`${s.name}${locked ? ', ZYNK Plus' : ''}`}
+              accessibilityLabel={`${s.name}${locked ? ', Speow Plus' : ''}`}
               onPress={() => (locked ? router.push('/plus') : onSelect(s.id))}
               style={styles.row}
             >
@@ -69,7 +69,7 @@ function FriendSound({ friendId }: { friendId: string }) {
   });
   const name = friend.data?.displayName ?? 'this friend';
   return (
-    <Screen back title={`When ${name} zynks you`} subtitle="Only you hear this. It overrides the sound they picked.">
+    <Screen back title={`When ${name} sends you a Speow`} subtitle="Only you hear this. It overrides the sound they picked.">
       <SoundList value={friend.data?.friendSoundId ?? null} onSelect={(id) => set.mutate(id)} defaultLabel="Use my normal settings" />
     </Screen>
   );
@@ -83,13 +83,13 @@ export default function SoundSettings() {
   if (friend) return <FriendSound friendId={friend} />;
   if (!prefs) return <Screen back title="Sounds"><Text tone="muted">Loading…</Text></Screen>;
   return (
-    <Screen back title="Sounds" subtitle="All ZYNK sounds are original. Tap the speaker to preview.">
+    <Screen back title="Sounds" subtitle="All Speow! sounds are original. Tap the speaker to preview.">
       <Section footer="Sounds respect your phone's silent mode, volume and Focus settings.">
-        <ToggleRow title="Zynk sounds" value={prefs.soundsEnabled} onChange={(v) => update.mutate({ soundsEnabled: v })} />
+        <ToggleRow title="Speow sounds" value={prefs.soundsEnabled} onChange={(v) => update.mutate({ soundsEnabled: v })} />
         <Divider />
         <ToggleRow
           title="Play friends' chosen sounds"
-          subtitle="Off: every Zynk uses your own sound"
+          subtitle="Off: every Speow uses your own sound"
           value={prefs.allowSenderSounds}
           disabled={!prefs.soundsEnabled}
           onChange={(v) => update.mutate({ allowSenderSounds: v })}
@@ -101,8 +101,8 @@ export default function SoundSettings() {
       </View>
       <Text variant="caption" tone="muted">
         {tab === 'incoming'
-          ? 'Your default sound for incoming Zynks. Per-friend sounds can be set from a friend’s profile.'
-          : 'Sent along with your Zynks. Friends hear it only if their settings allow.'}
+          ? 'Your default sound for incoming Speows. Per-friend sounds can be set from a friend’s profile.'
+          : 'Sent along with your Speows. Friends hear it only if their settings allow.'}
       </Text>
       <SoundList
         value={tab === 'incoming' ? prefs.incomingSoundId : prefs.outgoingSoundId}
