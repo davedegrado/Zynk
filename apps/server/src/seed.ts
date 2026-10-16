@@ -8,19 +8,20 @@ export async function seed(db: Db, env: string) {
   if (env === 'production') throw new Error('Refusing to seed a production database');
   const password = await hashPassword('zynkzynk');
   const people = [
-    ['demo', 'Dee Demo'],
-    ['sam.rivers', 'Sam Rivers'],
-    ['nova_k', 'Nova K'],
-    ['juno', 'Juno'],
-    ['max.power', 'Max'],
-    ['lena', 'Lena B'],
+    ['demo', 'Dee Demo', 'cat', 'lime'],
+    ['sam.rivers', 'Sam Rivers', 'robot', 'blue'],
+    ['nova_k', 'Nova K', 'alien', 'purple'],
+    ['juno', 'Juno', 'frog', 'pink'],
+    ['max.power', 'Max', 'dino', 'tangerine'],
+    ['lena', 'Lena B', 'owl', 'cloud'],
   ] as const;
   const ids: Record<string, string> = {};
-  for (const [username, name] of people) {
+  for (const [username, name, avatarId, avatarColor] of people) {
     const { rows } = await db.query<{ id: string }>(
-      `insert into users (username, display_name, password_hash, invite_code) values ($1, $2, $3, $4)
-       on conflict (username) do update set display_name = excluded.display_name returning id`,
-      [username, name, password, newInviteCode()],
+      `insert into users (username, display_name, password_hash, invite_code, avatar_id, avatar_color) values ($1, $2, $3, $4, $5, $6)
+       on conflict (username) do update set display_name = excluded.display_name, avatar_id = excluded.avatar_id,
+         avatar_color = excluded.avatar_color returning id`,
+      [username, name, password, newInviteCode(), avatarId, avatarColor],
     );
     ids[username] = rows[0]!.id;
     await db.query('insert into preferences (user_id) values ($1) on conflict do nothing', [rows[0]!.id]);

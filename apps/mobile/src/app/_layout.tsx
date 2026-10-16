@@ -9,8 +9,10 @@ import { useEffect, useMemo, type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DialogProvider, ToastProvider } from '../components/ui';
+import { I18nProvider, useI18n } from '../i18n';
+import { api } from '../lib/api';
 import { usePreferences } from '../lib/hooks';
-import { queryClient } from '../lib/query';
+import { keys, queryClient } from '../lib/query';
 import { SessionProvider, useSession } from '../lib/session';
 import { ThemeProvider, useAppTheme } from '../theme/ThemeProvider';
 
@@ -30,6 +32,21 @@ function ThemedRoot({ children }: { children: ReactNode }) {
   return <ThemeProvider selection={selection}>{children}</ThemeProvider>;
 }
 
+/** Keeps the server-side language (used for push texts) in sync with the app language. */
+function LanguageSync() {
+  const { status } = useSession();
+  const { lang } = useI18n();
+  const serverLang = usePreferences().data?.selected.language;
+  useEffect(() => {
+    if (status !== 'signedIn' || !serverLang || serverLang === lang) return;
+    api
+      .updatePreferences({ language: lang })
+      .then((res) => queryClient.setQueryData(keys.prefs, res))
+      .catch(() => undefined);
+  }, [status, serverLang, lang]);
+  return null;
+}
+
 function Navigation() {
   const t = useAppTheme();
   const { status } = useSession();
@@ -47,6 +64,7 @@ function Navigation() {
 
   return (
     <NavThemeProvider value={navTheme}>
+      <LanguageSync />
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
       <DialogProvider>
         <ToastProvider>
@@ -70,11 +88,13 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <ThemedRoot>
-              <Navigation />
-            </ThemedRoot>
-          </SessionProvider>
+          <I18nProvider>
+            <SessionProvider>
+              <ThemedRoot>
+                <Navigation />
+              </ThemedRoot>
+            </SessionProvider>
+          </I18nProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

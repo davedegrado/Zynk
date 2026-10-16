@@ -1,45 +1,62 @@
-import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
-import { BRAND, type PublicUser } from '@zynk/shared';
-import { absoluteUrl, authHeaders } from '../../lib/api';
-import { fonts } from '../../theme/tokens';
-import { Text } from './Text';
+import { useId } from 'react';
+import { View } from 'react-native';
+import Svg, { Circle, ClipPath, Defs, Ellipse, G, Path, Rect } from 'react-native-svg';
+import { AVATAR_ART, BRAND, getBubbleColor, isAvatarId, type AvatarRole, type AvatarShape, type PublicUser } from '@zynk/shared';
 
-const SWATCHES = [BRAND.colors.lime, BRAND.colors.purple, BRAND.colors.electricBlue, BRAND.colors.pink, BRAND.colors.white];
+const ROLE_COLORS: Record<Exclude<AvatarRole, 'bg'>, string> = {
+  body: BRAND.colors.white,
+  ink: BRAND.colors.ink,
+  blush: BRAND.colors.pink,
+};
 
-function hash(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
+function Shape({ shape, bg }: { shape: AvatarShape; bg: string }) {
+  const color = (role: AvatarRole | 'none' | undefined) =>
+    role === undefined || role === 'none' ? 'none' : role === 'bg' ? bg : ROLE_COLORS[role];
+  const props = { ...shape.attrs, fill: color(shape.fill), stroke: shape.stroke ? color(shape.stroke) : undefined } as Record<string, unknown>;
+  switch (shape.kind) {
+    case 'circle':
+      return <Circle {...props} />;
+    case 'ellipse':
+      return <Ellipse {...props} />;
+    case 'rect':
+      return <Rect {...props} />;
+    default:
+      return <Path {...(props as { d: string })} />;
+  }
 }
 
-export function Avatar({ user, size = 48, ring }: { user: Pick<PublicUser, 'id' | 'displayName' | 'avatarUrl'>; size?: number; ring?: string }) {
-  const bg = SWATCHES[hash(user.id) % SWATCHES.length]!;
-  const initials = user.displayName.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('') || '?';
+/** Renders a drawn avatar character (no photos) on its chosen background color. */
+export function AvatarArt({ avatarId, colorId, size = 48 }: { avatarId: string; colorId: string; size?: number }) {
+  const clipId = `av${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  const bg = (getBubbleColor(colorId) ?? getBubbleColor('lime')!).color;
+  const art = AVATAR_ART[isAvatarId(avatarId) ? avatarId : 'cat'];
   return (
-    <View
-      accessibilityLabel={`${user.displayName}'s avatar`}
-      style={[
-        styles.base,
-        { width: size, height: size, borderRadius: size / 2, backgroundColor: bg },
-        ring && { borderWidth: 3, borderColor: ring },
-      ]}
-    >
-      {user.avatarUrl ? (
-        <Image
-          source={{ uri: absoluteUrl(user.avatarUrl), headers: authHeaders() }}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          transition={150}
-          cachePolicy="memory-disk"
-        />
-      ) : (
-        <Text style={{ fontFamily: fonts.display, fontSize: size * 0.36, color: BRAND.colors.ink, lineHeight: size * 0.44 }}>{initials}</Text>
-      )}
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 100 100">
+      <Defs>
+        <ClipPath id={clipId}>
+          <Circle cx={50} cy={50} r={50} />
+        </ClipPath>
+      </Defs>
+      <G clipPath={`url(#${clipId})`}>
+        <Circle cx={50} cy={50} r={50} fill={bg} />
+        {art.map((s, i) => (
+          <Shape key={i} shape={s} bg={bg} />
+        ))}
+      </G>
+    </Svg>
   );
 }
 
-const styles = StyleSheet.create({
-  base: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-});
+export function Avatar({ user, size = 48, ring }: { user: Pick<PublicUser, 'displayName' | 'avatar'>; size?: number; ring?: string }) {
+  return (
+    <View
+      accessibilityLabel={`${user.displayName}`}
+      style={[
+        { width: size, height: size, borderRadius: size / 2, overflow: 'hidden' },
+        ring && { borderWidth: 3, borderColor: ring, padding: 0 },
+      ]}
+    >
+      <AvatarArt avatarId={user.avatar.id} colorId={user.avatar.color} size={ring ? size - 6 : size} />
+    </View>
+  );
+}

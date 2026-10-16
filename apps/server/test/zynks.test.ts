@@ -26,6 +26,7 @@ describe('sending Speows', () => {
     expect((await api(t, a).get('/activity?direction=sent')).json().items).toHaveLength(1);
 
     // Speow back.
+    t.clock.advance(1000);
     expect((await zynk(t, b, a)).statusCode).toBe(201);
     expect((await api(t, b).get('/activity')).json().items.map((i: { direction: string }) => i.direction)).toEqual(['sent', 'received']);
   });
@@ -157,7 +158,7 @@ describe('push notifications', () => {
     expect(t.push.sent).toHaveLength(2);
     const ios = t.push.sent.find((m) => m.platform === 'ios')!;
     const android = t.push.sent.find((m) => m.platform === 'android')!;
-    expect(ios).toMatchObject({ title: 'Speow!', body: 'PUSHER sent you a Speow 👋', iosSound: 'zynk_classic.wav', badge: 1 });
+    expect(ios).toMatchObject({ title: 'Speow!', body: 'PUSHER sent you a lime Speow 👋', iosSound: 'zynk_classic.wav', badge: 1 });
     expect(ios.data).toMatchObject({ type: 'zynk', zynkId: id, url: `zynk://activity?zynk=${id}` });
     expect(android.androidChannelId).toBe('zynk_classic');
     expect(JSON.stringify(ios.data)).not.toContain('ExponentPushToken');
@@ -260,6 +261,38 @@ describe('push copy', () => {
     await addDevice(t, b);
     await zynk(t, a, b);
     await t.app.zynk.push.drain();
-    expect(t.push.sent[0]).toMatchObject({ title: 'Speow!', body: 'BRANDY sent you a Speow!' });
+    expect(t.push.sent[0]).toMatchObject({ title: 'Speow!', body: 'BRANDY sent you a lime Speow!' });
+  });
+});
+
+describe('Speow colors (free)', () => {
+  it('a free user can pick any color per Speow; unknown colors are rejected', async () => {
+    const a = await register(t, 'colorful');
+    const b = await register(t, 'viewer2');
+    await befriend(t, a, b);
+    await addDevice(t, b);
+    const z = await zynk(t, a, b, { bubbleColorId: 'pink' });
+    expect(z.statusCode).toBe(201);
+    expect(z.json().zynk.bubbleColorId).toBe('pink');
+    await t.app.zynk.push.drain();
+    expect(t.push.sent[0]!.body).toBe('COLORFUL sent you a pink Speow!');
+    t.clock.advance(3000);
+    expect((await zynk(t, a, b, { bubbleColorId: 'gold' })).json().error.code).toBe('unknown_item');
+    // The default color is a free preference too.
+    expect((await api(t, a).patch('/me/preferences', { bubbleColorId: 'tangerine' })).statusCode).toBe(200);
+    expect((await zynk(t, a, b)).json().zynk.bubbleColorId).toBe('tangerine');
+  });
+
+  it('writes notifications in the recipient language', async () => {
+    const a = await register(t, 'mario');
+    const b = await register(t, 'luigi');
+    await befriend(t, a, b);
+    await addDevice(t, b);
+    await api(t, b).patch('/me/preferences', { language: 'it' });
+    await zynk(t, a, b, { bubbleColorId: 'purple', reactionId: 'basic:fire' });
+    await t.app.zynk.push.drain();
+    expect(t.push.sent[0]!.body).toBe('MARIO ti ha mandato uno Speow viola 🔥');
+    expect((await api(t, b).get('/me/preferences')).json().selected.language).toBe('it');
+    expect((await api(t, b).patch('/me/preferences', { language: 'fr' })).statusCode).toBe(400);
   });
 });

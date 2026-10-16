@@ -2,12 +2,13 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { radius, space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Icon } from './Icon';
+import { translate } from '../../i18n';
 import { Text } from './Text';
 
 export function PlusBadge({ locked }: { locked?: boolean }) {
   const t = useAppTheme();
   return (
-    <View style={[styles.badge, { backgroundColor: t.colors.text }]} accessibilityLabel={locked ? 'Speow Plus, locked' : 'Speow Plus'}>
+    <View style={[styles.badge, { backgroundColor: t.colors.text }]} accessibilityLabel={locked ? translate('badge.plusLocked') : 'Speow Plus'}>
       {locked ? <Icon name="lock" size={12} color={t.colors.background} /> : null}
       <Text variant="label" style={{ color: t.colors.background, fontSize: 10, lineHeight: 12 }}>Plus</Text>
     </View>

@@ -15,7 +15,7 @@ jest.mock('../lib/api', () => {
       this.retryAfterMs = retryAfterMs;
     }
   }
-  return { ApiError, api: { sendZynk: (...a: unknown[]) => mockSendZynk(...a) } };
+  return { ApiError, errorMessage: (e: Error) => e.message, api: { sendZynk: (...a: unknown[]) => mockSendZynk(...a) } };
 });
 jest.mock('../lib/hooks', () => ({ useEffectivePrefs: () => ({ haptics: true, soundsEnabled: false, outgoingSoundId: 'zynk_classic' }) }));
 jest.mock('../lib/haptics', () => ({ haptic: { zynk: jest.fn(), warn: jest.fn(), tap: jest.fn() } }));

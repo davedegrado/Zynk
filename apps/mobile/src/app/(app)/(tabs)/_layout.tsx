@@ -2,20 +2,22 @@ import { Tabs, type BottomTabBarProps } from 'expo-router/js-tabs';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CountBadge, Icon, Text, type IconName } from '../../../components/ui';
+import { useI18n, type MessageKey } from '../../../i18n';
 import { haptic } from '../../../lib/haptics';
 import { useActivity, useFriendRequests } from '../../../lib/hooks';
 import { radius, space } from '../../../theme/tokens';
 import { useAppTheme } from '../../../theme/ThemeProvider';
 
-const TABS: Record<string, { label: string; icon: IconName }> = {
-  index: { label: 'Friends', icon: 'friends' },
-  activity: { label: 'Activity', icon: 'activity' },
-  add: { label: 'Add', icon: 'add' },
-  profile: { label: 'Profile', icon: 'profile' },
+const TABS: Record<string, { label: MessageKey; icon: IconName }> = {
+  index: { label: 'tabs.friends', icon: 'friends' },
+  activity: { label: 'tabs.activity', icon: 'activity' },
+  add: { label: 'tabs.add', icon: 'add' },
+  profile: { label: 'tabs.profile', icon: 'profile' },
 };
 
 function TabBar({ state, navigateToTab }: BottomTabBarProps) {
   const t = useAppTheme();
+  const { t: tr } = useI18n();
   const insets = useSafeAreaInsets();
   const unseen = useActivity('all').data?.unseenCount ?? 0;
   const requests = useFriendRequests().data?.incoming.length ?? 0;
@@ -32,7 +34,7 @@ function TabBar({ state, navigateToTab }: BottomTabBarProps) {
               key={route.key}
               accessibilityRole="tab"
               accessibilityState={{ selected: focused }}
-              accessibilityLabel={count ? `${meta.label}, ${count} new` : meta.label}
+              accessibilityLabel={count ? tr('tabs.newCount', { label: tr(meta.label), count }) : tr(meta.label)}
               onPress={() => {
                 if (!focused) {
                   void haptic.tap();
@@ -42,7 +44,7 @@ function TabBar({ state, navigateToTab }: BottomTabBarProps) {
               style={[styles.item, focused && { backgroundColor: t.colors.accent }, focused && t.scheme === 'light' && { borderWidth: 2, borderColor: t.colors.text }]}
             >
               <Icon name={meta.icon} size={22} color={focused ? t.colors.onAccent : t.colors.textMuted} />
-              {focused ? <Text variant="label" style={{ color: t.colors.onAccent, fontSize: 11 }}>{meta.label}</Text> : null}
+              {focused ? <Text variant="label" style={{ color: t.colors.onAccent, fontSize: 11 }}>{tr(meta.label)}</Text> : null}
               {count > 0 && !focused ? (
                 <View style={styles.badge}>
                   <CountBadge count={count} />

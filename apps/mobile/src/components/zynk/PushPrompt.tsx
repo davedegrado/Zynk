@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Linking, Platform, View } from 'react-native';
+import { useI18n } from '../../i18n';
 import { getPushPermission, requestPushPermission, type PushPermission } from '../../lib/notifications';
 import { space } from '../../theme/tokens';
 import { Button, Card, Text } from '../ui';
 
 /** Contextual, dismissible pre-permission card. We never prompt on launch. */
 export function PushPrompt() {
+  const { t } = useI18n();
   const [perm, setPerm] = useState<PushPermission | null>(null);
   const [dismissed, setDismissed] = useState(false);
   useEffect(() => {
@@ -14,19 +16,19 @@ export function PushPrompt() {
   if (Platform.OS === 'web' || dismissed || !perm || perm === 'granted') return null;
   return (
     <Card style={{ gap: space.sm }}>
-      <Text variant="heading">Don&apos;t miss a Speow</Text>
+      <Text variant="heading">{t('pushPrompt.title')}</Text>
       <Text tone="muted">
         {perm === 'denied'
-          ? 'Notifications are off for Speow! in system settings. Speows still land in Activity while the app is open.'
-          : 'Turn on notifications to know when a friend sends you a Speow. You choose sounds, mutes and more later.'}
+          ? t('pushPrompt.denied')
+          : t('pushPrompt.body')}
       </Text>
       <View style={{ flexDirection: 'row', gap: space.sm, marginTop: space.xs }}>
         {perm === 'denied' ? (
-          <Button title="Open settings" size="sm" onPress={() => void Linking.openSettings()} />
+          <Button title={t('pushPrompt.openSettings')} size="sm" onPress={() => void Linking.openSettings()} />
         ) : (
-          <Button title="Turn on" size="sm" icon="bolt" onPress={async () => setPerm(await requestPushPermission())} />
+          <Button title={t('pushPrompt.turnOn')} size="sm" icon="bolt" onPress={async () => setPerm(await requestPushPermission())} />
         )}
-        <Button title="Not now" size="sm" variant="ghost" onPress={() => setDismissed(true)} />
+        <Button title={t('pushPrompt.notNow')} size="sm" variant="ghost" onPress={() => setDismissed(true)} />
       </View>
     </Card>
   );

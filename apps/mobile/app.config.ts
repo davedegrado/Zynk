@@ -27,8 +27,6 @@ const config: ExpoConfig = {
     bundleIdentifier: IS_DEV ? 'app.zynk.dev' : 'app.zynk',
     supportsTablet: false,
     infoPlist: {
-      NSPhotoLibraryUsageDescription: 'Choose a profile picture for your Speow! profile.',
-      NSCameraUsageDescription: 'Take a profile picture for your Speow! profile.',
       ITSAppUsesNonExemptEncryption: false,
     },
     associatedDomains: process.env.ZYNK_LINK_DOMAIN ? [`applinks:${process.env.ZYNK_LINK_DOMAIN}`] : undefined,
@@ -69,14 +67,6 @@ const config: ExpoConfig = {
     'expo-secure-store',
     ['expo-audio', { microphonePermission: false, recordAudioAndroid: false }],
     'expo-web-browser',
-    [
-      'expo-image-picker',
-      {
-        photosPermission: 'Choose a profile picture for your Speow! profile.',
-        cameraPermission: 'Take a profile picture for your Speow! profile.',
-        microphonePermission: false,
-      },
-    ],
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
   extra: {

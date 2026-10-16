@@ -1,5 +1,7 @@
 import type {
   ActivityResponse,
+  Avatar,
+  Language,
   ApiErrorBody,
   ApiErrorCode,
   AuthResponse,
@@ -17,6 +19,7 @@ import type {
   UserProfile,
   ZynkEvent,
 } from '@zynk/shared';
+import { translate, type MessageKey } from '../i18n';
 import { getApiUrl } from './config';
 
 export class ApiError extends Error {
@@ -55,12 +58,12 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
     payload = JSON.stringify(body);
   }
   const base = getApiUrl();
-  if (!base) throw new ApiError(0, 'network', 'No server address set. Tap “Server” on the welcome screen.');
+  if (!base) throw new ApiError(0, 'network', translate('error.noServer'));
   let res: Response;
   try {
     res = await fetch(`${base}${path}`, { method, headers, body: payload });
   } catch {
-    throw new ApiError(0, 'network', "Can't reach Speow! right now. Check your connection.");
+    throw new ApiError(0, 'network', translate('error.network'));
   }
   if (res.status === 204) return undefined as T;
   const json = (await res.json().catch(() => null)) as (T & Partial<ApiErrorBody>) | null;
@@ -81,16 +84,14 @@ const q = (params: Record<string, string | number | undefined>) => {
 };
 
 export const api = {
-  register: (b: { username: string; displayName: string; password: string }) => request<AuthResponse>('POST', '/auth/register', b),
+  register: (b: { username: string; displayName: string; password: string; avatar?: Avatar; language?: Language }) => request<AuthResponse>('POST', '/auth/register', b),
   login: (b: { username: string; password: string }) => request<AuthResponse>('POST', '/auth/login', b),
   logout: () => request<void>('POST', '/auth/logout'),
   changePassword: (b: { currentPassword: string; newPassword: string }) => request<void>('POST', '/me/password', b),
   deleteAccount: (password: string) => request<void>('DELETE', '/me', { password }),
 
   me: () => request<Me>('GET', '/me'),
-  updateMe: (b: { displayName?: string; username?: string }) => request<Me>('PATCH', '/me', b),
-  uploadAvatar: (data: Blob, type: string) => request<Me>('PUT', '/me/avatar', undefined, { raw: { data, type } }),
-  removeAvatar: () => request<Me>('DELETE', '/me/avatar'),
+  updateMe: (b: { displayName?: string; username?: string; avatar?: Avatar }) => request<Me>('PATCH', '/me', b),
   invite: () => request<{ code: string; url: string }>('GET', '/me/invite'),
   rotateInvite: () => request<{ code: string; url: string }>('POST', '/me/invite/rotate'),
   resolveInvite: (code: string) => request<UserProfile>('GET', `/invites/${encodeURIComponent(code)}`),
@@ -114,7 +115,7 @@ export const api = {
   report: (b: { userId: string; zynkId?: string; reason: ReportReason; details?: string; alsoBlock?: boolean }) =>
     request<{ ok: true }>('POST', '/reports', b),
 
-  sendZynk: (b: { recipientId: string; clientNonce: string; reactionId?: string | null; effectId?: string | null }) =>
+  sendZynk: (b: { recipientId: string; clientNonce: string; reactionId?: string | null; effectId?: string | null; bubbleColorId?: string | null }) =>
     request<SendZynkResponse>('POST', '/zynks', b),
   activity: (p: { direction?: 'all' | 'received' | 'sent'; before?: string; limit?: number } = {}) =>
     request<ActivityResponse>('GET', `/activity${q(p)}`),
@@ -135,8 +136,38 @@ export const api = {
   syncPurchases: () => request<EntitlementsResponse>('POST', '/billing/sync'),
 };
 
+const ERROR_KEYS: Partial<Record<ApiErrorCode | 'network', MessageKey>> = {
+  network: 'error.network',
+  invalid_credentials: 'error.invalidCredentials',
+  username_taken: 'error.usernameTaken',
+  account_suspended: 'error.suspended',
+  unauthorized: 'error.unauthorized',
+  not_friends: 'error.notFriends',
+  cooldown: 'error.cooldown',
+  rate_limited: 'error.rateLimited',
+  feature_locked: 'error.featureLocked',
+  unknown_item: 'error.unknownItem',
+  not_found: 'error.notFound',
+  purchases_unavailable: 'error.purchasesUnavailable',
+  payload_too_large: 'error.tooLarge',
+  internal: 'error.internal',
+};
+
+/** User-facing, localized message for any error. */
 export function errorMessage(err: unknown): string {
-  if (err instanceof ApiError) return err.message;
+  if (err instanceof ApiError) {
+    if (err.code === 'network' && !getApiUrl()) return translate('error.noServer');
+    const key = ERROR_KEYS[err.code];
+    return key ? translate(key) : err.message;
+  }
   if (err instanceof Error) return err.message;
-  return 'Something went wrong';
+  return translate('error.internal');
+}
+
+/** Localized message for a field error returned by the server. */
+export function fieldMessage(err: ApiError, field: string): string {
+  if (err.code === 'username_taken') return translate('error.usernameTaken');
+  if (field === 'password' && err.code === 'invalid_credentials') return translate('error.wrongPassword');
+  if (field === 'currentPassword') return translate('error.wrongPassword');
+  return translate('error.invalidField');
 }

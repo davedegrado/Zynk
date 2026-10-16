@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { PreferencesPatch, PreferencesResponse } from '@zynk/shared';
 import { useToast } from '../components/ui';
+import { translate } from '../i18n';
 import { api, ApiError, errorMessage } from './api';
 import { keys, queryClient } from './query';
 
@@ -17,7 +18,7 @@ export function useUpdatePrefs() {
     },
     onError: (err, _patch, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(keys.prefs, ctx.prev);
-      toast(err instanceof ApiError && err.code === 'feature_locked' ? 'That one needs Speow Plus.' : errorMessage(err), 'error');
+      toast(err instanceof ApiError && err.code === 'feature_locked' ? translate('error.featureLocked') : errorMessage(err), 'error');
     },
     onSuccess: (res) => queryClient.setQueryData(keys.prefs, res),
   });

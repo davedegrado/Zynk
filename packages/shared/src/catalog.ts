@@ -191,15 +191,32 @@ export const ACCENTS: readonly ColorSwatch[] = [
   { id: 'cloud', name: 'White', color: white, ink: ink, requiredFeature: 'custom_themes' },
 ];
 
+/**
+ * Speow colors: picked per Speow when sending (free for everyone) and used as
+ * avatar backgrounds. Every color has accessible ink.
+ */
 export const BUBBLE_COLORS: readonly ColorSwatch[] = [
   { id: 'lime', name: 'Acid Lime', color: BRAND.colors.lime, ink: ink, requiredFeature: null },
-  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: ink, requiredFeature: 'custom_themes' },
-  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: ink, requiredFeature: 'custom_themes' },
-  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: ink, requiredFeature: 'custom_themes' },
-  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: ink, requiredFeature: 'custom_themes' },
-  { id: 'cloud', name: 'White', color: white, ink: ink, requiredFeature: 'custom_themes' },
-  { id: 'ink', name: 'Ink', color: '#2A2A2A', ink: white, requiredFeature: 'custom_themes' },
+  { id: 'purple', name: 'Purple', color: BRAND.colors.purple, ink: ink, requiredFeature: null },
+  { id: 'blue', name: 'Electric Blue', color: BRAND.colors.electricBlue, ink: ink, requiredFeature: null },
+  { id: 'pink', name: 'Pink', color: BRAND.colors.pink, ink: ink, requiredFeature: null },
+  { id: 'tangerine', name: 'Tangerine', color: '#FFA01C', ink: ink, requiredFeature: null },
+  { id: 'cloud', name: 'White', color: white, ink: ink, requiredFeature: null },
+  { id: 'ink', name: 'Ink', color: '#2A2A2A', ink: white, requiredFeature: null },
 ];
+
+// ---------------------------------------------------------------- avatars
+
+/** Drawn characters (art in avatar-art.ts). Free; ids are persisted in users.avatar_id. */
+export const AVATARS = [
+  'cat', 'alien', 'robot', 'ghost', 'frog', 'bear', 'bunny', 'blob', 'dino', 'owl', 'fox', 'monster',
+] as const;
+export type AvatarId = (typeof AVATARS)[number];
+/** Avatar background colors = the Speow colors. */
+export const AVATAR_COLORS = BUBBLE_COLORS;
+export const isAvatarId = (id: string): id is AvatarId => (AVATARS as readonly string[]).includes(id);
+export const isAvatarColor = (id: string) => BUBBLE_COLORS.some((c) => c.id === id);
+
 
 // ---------------------------------------------------------------- effects
 

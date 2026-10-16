@@ -4,23 +4,16 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { REPORT_REASONS, type ReportReason } from '@zynk/shared';
 import { Button, Chip, Input, Screen, Text, ToggleRow, Section, useToast } from '../../../components/ui';
+import { useI18n } from '../../../i18n';
 import { api, errorMessage } from '../../../lib/api';
 import { useUser } from '../../../lib/hooks';
 import { keys, queryClient } from '../../../lib/query';
 import { space } from '../../../theme/tokens';
 
-const LABELS: Record<ReportReason, string> = {
-  spam: 'Spam or flooding',
-  harassment: 'Harassment or bullying',
-  impersonation: 'Pretending to be someone',
-  inappropriate_profile: 'Inappropriate name or photo',
-  underage: 'May be under age',
-  other: 'Something else',
-};
-
 export default function ReportScreen() {
   const { id, zynk } = useLocalSearchParams<{ id: string; zynk?: string }>();
   const user = useUser(id);
+  const { t, td } = useI18n();
   const toast = useToast();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState('');
@@ -28,7 +21,7 @@ export default function ReportScreen() {
   const submit = useMutation({
     mutationFn: () => api.report({ userId: id, zynkId: zynk, reason: reason!, details: details.trim() || undefined, alsoBlock }),
     onSuccess: () => {
-      toast('Thanks — our team will review this.', 'success');
+      toast(t('report.thanks'), 'success');
       void queryClient.invalidateQueries({ queryKey: keys.user(id) });
       void queryClient.invalidateQueries({ queryKey: keys.friends });
       router.back();
@@ -36,18 +29,18 @@ export default function ReportScreen() {
     onError: (e) => toast(errorMessage(e), 'error'),
   });
   return (
-    <Screen back title={`Report ${user.data?.displayName ?? 'user'}`} subtitle="Reports are confidential. The person is not told who reported them.">
+    <Screen back title={t('report.title', { name: user.data?.displayName ?? '' })} subtitle={t('report.subtitle')}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
         {REPORT_REASONS.map((r) => (
-          <Chip key={r} label={LABELS[r]} selected={reason === r} onPress={() => setReason(r)} />
+          <Chip key={r} label={td(`report.reason.${r}`, r)} selected={reason === r} onPress={() => setReason(r)} />
         ))}
       </View>
-      <Input label="Anything else? (optional)" value={details} onChangeText={setDetails} multiline maxLength={500} style={{ minHeight: 90, textAlignVertical: 'top' }} />
+      <Input label={t('report.details')} value={details} onChangeText={setDetails} multiline maxLength={500} style={{ minHeight: 90, textAlignVertical: 'top' }} />
       <Section>
-        <ToggleRow title="Also block them" subtitle="They won't be able to find you or send you a Speow." value={alsoBlock} onChange={setAlsoBlock} />
+        <ToggleRow title={t('report.alsoBlock')} subtitle={t('report.alsoBlockSub')} value={alsoBlock} onChange={setAlsoBlock} />
       </Section>
-      <Button title="Send report" variant="danger" onPress={() => submit.mutate()} disabled={!reason} loading={submit.isPending} />
-      <Text variant="caption" tone="muted" center>If someone is in immediate danger, contact local emergency services.</Text>
+      <Button title={t('report.send')} variant="danger" onPress={() => submit.mutate()} disabled={!reason} loading={submit.isPending} />
+      <Text variant="caption" tone="muted" center>{t('report.danger')}</Text>
     </Screen>
   );
 }

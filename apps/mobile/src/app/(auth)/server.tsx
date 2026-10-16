@@ -1,10 +1,12 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Button, Input, Screen, Text } from '../../components/ui';
+import { useI18n } from '../../i18n';
 import { getApiUrl, normalizeServerUrl, saveServerOverride } from '../../lib/config';
 
 /** Test builds only: point the app at a Speow! server, e.g. your computer on the same Wi-Fi. */
 export default function ServerScreen() {
+  const { t } = useI18n();
   const [value, setValue] = useState(getApiUrl());
   const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -12,11 +14,11 @@ export default function ServerScreen() {
   const test = async (): Promise<string | null> => {
     const url = normalizeServerUrl(value);
     if (!url) {
-      setStatus({ ok: false, message: 'That doesn’t look like an address. Example: 192.168.1.20' });
+      setStatus({ ok: false, message: t('server.invalid') });
       return null;
     }
     setBusy(true);
-    setStatus({ ok: true, message: 'Connecting… a sleeping free server can take up to a minute to wake up.' });
+    setStatus({ ok: true, message: t('server.connecting') });
     try {
       const ctrl = new AbortController();
       // Free hosting sleeps when idle; waking up can take about a minute.
@@ -25,13 +27,10 @@ export default function ServerScreen() {
       clearTimeout(timer);
       const body = (await res.json().catch(() => null)) as { ok?: boolean } | null;
       if (!res.ok || !body?.ok) throw new Error(`HTTP ${res.status}`);
-      setStatus({ ok: true, message: `Connected to ${url}` });
+      setStatus({ ok: true, message: t('server.ok', { url }) });
       return url;
     } catch {
-      setStatus({
-        ok: false,
-        message: `Can’t reach ${url}. Check that the server is running, that your phone is on the same Wi-Fi, and that the computer’s firewall allows port 4000.`,
-      });
+      setStatus({ ok: false, message: t('server.fail', { url }) });
       return null;
     } finally {
       setBusy(false);
@@ -39,21 +38,21 @@ export default function ServerScreen() {
   };
 
   return (
-    <Screen back title="Server" subtitle="Test builds only. Enter the address of the computer running the Speow! server.">
+    <Screen back title={t('server.title')} subtitle={t('server.subtitle')}>
       <Input
-        label="Server address"
-        placeholder="192.168.1.20"
+        label={t('server.label')}
+        placeholder="speow-api.onrender.com"
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="url"
         value={value}
         onChangeText={setValue}
-        hint="Port 4000 is added automatically for plain IP addresses."
+        hint={t('server.hint')}
       />
       {status ? <Text tone={status.ok ? 'accent' : 'danger'} accessibilityRole="alert">{status.message}</Text> : null}
-      <Button title="Test connection" variant="secondary" loading={busy} onPress={() => void test()} />
+      <Button title={t('server.test')} variant="secondary" loading={busy} onPress={() => void test()} />
       <Button
-        title="Save"
+        title={t('common.save')}
         disabled={busy}
         onPress={async () => {
           const url = await test();

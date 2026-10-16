@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useI18n } from '../../i18n';
 import { radius, space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Button } from './Button';
@@ -18,6 +19,7 @@ const DialogContext = createContext<(o: ConfirmOptions) => Promise<boolean>>(asy
 /** Promise-based, on-brand confirm dialog: `if (await confirm({...})) ...` */
 export function DialogProvider({ children }: { children: ReactNode }) {
   const t = useAppTheme();
+  const { t: tr } = useI18n();
   const [opts, setOpts] = useState<ConfirmOptions | null>(null);
   const resolver = useRef<((v: boolean) => void) | null>(null);
 
@@ -42,8 +44,8 @@ export function DialogProvider({ children }: { children: ReactNode }) {
             <Text variant="heading">{opts?.title}</Text>
             {opts?.body ? <Text tone="muted">{opts.body}</Text> : null}
             <View style={styles.actions}>
-              <Button title={opts?.cancel ?? 'Cancel'} variant="ghost" size="sm" onPress={() => close(false)} />
-              <Button title={opts?.confirm ?? 'OK'} variant={opts?.destructive ? 'danger' : 'primary'} size="sm" onPress={() => close(true)} />
+              <Button title={opts?.cancel ?? tr('common.cancel')} variant="ghost" size="sm" onPress={() => close(false)} />
+              <Button title={opts?.confirm ?? tr('common.ok')} variant={opts?.destructive ? 'danger' : 'primary'} size="sm" onPress={() => close(true)} />
             </View>
           </Pressable>
         </Pressable>

@@ -35,7 +35,7 @@ apps/server/src
   config.ts           env parsing (all limits, plans and prices are configurable)
   modules/
     auth/             register, login, logout, password change, account deletion
-    users/            profiles, avatars, search, invite links (+ /i/:code landing page)
+    users/            profiles, avatar choice, search, invite links (+ /i/:code landing page)
     friends/          requests, friendships
     safety/           blocks, mutes, reports
     zynks/            send (validation → limits → persist → push), activity, seen, reactions
@@ -127,11 +127,13 @@ Reactions: everyone can *see* every bundled pack. Unknown refs (a pack added in 
 
 ## Safety & privacy
 
-* Blocks are enforced in every query path (search, profiles, avatars, requests, Speows, activity) — not just hidden in UI.
+* Blocks are enforced in every query path (search, profiles, requests, Speows, activity) — not just hidden in UI.
 * Reports: one open report per (reporter, reported) pair, rate-limited per day, optional Speow evidence restricted to Speows between the two users, username snapshot kept for moderation after account deletion. `moderation_actions` is an audit log. Moderators use the token-protected admin API; nothing about reports is visible to users.
 * No contacts access (the permission is explicitly blocked on Android). Discovery is by exact-prefix username or invite link only.
 * No public counts. Profiles expose id, username, display name, avatar.
-* Avatars are re-encoded on device (EXIF/GPS stripped), size-limited (512 KB), type-sniffed server-side, and served only to authenticated, non-blocked users.
+* No profile photos: an avatar is one of 12 drawn characters (`packages/shared/src/avatar-art.ts`) plus a background color, stored as two short ids. Nothing is uploaded.
+* Speow colors are free: every send may carry a `bubbleColorId`, validated against the catalog; the push text names the color in the recipient's language (`packages/shared/src/messages.ts`).
+* App texts live in `apps/mobile/src/i18n` (English + Italian, same keys enforced by a test). The app language is synced to `preferences.language` so push notifications are written in it.
 * Logs omit IPs, query strings, bodies, tokens and passwords.
 * Device tokens are tied to the session that registered them: logout or password change removes them; re-registration by another account moves the token; `DeviceNotRegistered` receipts invalidate them.
 * Account deletion (password-confirmed) hard-deletes the user and cascades to all personal data; RevenueCat customer data is deleted best-effort. Store subscriptions must be cancelled by the user in the store (the app warns).

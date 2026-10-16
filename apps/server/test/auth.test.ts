@@ -17,7 +17,7 @@ describe('authentication', () => {
     const login = await api(t, null).post('/auth/login', { username: 'SAM.RIVERS', password: 'correct horse battery' });
     expect(login.statusCode).toBe(200);
     const me = await api(t, { ...u, token: login.json().token }).get('/me');
-    expect(me.json()).toMatchObject({ username: 'sam.rivers', displayName: 'SAM.RIVERS', avatarUrl: null });
+    expect(me.json()).toMatchObject({ username: 'sam.rivers', displayName: 'SAM.RIVERS', avatar: { id: expect.any(String), color: expect.any(String) } });
   });
 
   it('never stores plaintext passwords or raw tokens', async () => {
@@ -96,20 +96,28 @@ describe('profiles', () => {
     expect(clash.json().error.code).toBe('username_taken');
   });
 
-  it('uploads avatars with type sniffing, and only shows them to non-blocked users', async () => {
-    const u = await register(t, 'pic');
-    const viewer = await register(t, 'viewer');
-    const jpeg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(100, 1)]);
+  it('gives new users a valid random avatar, or the one they picked', async () => {
+    const u = await register(t, 'randy');
+    const me = (await api(t, u).get('/me')).json();
+    const { AVATARS, AVATAR_COLORS } = await import('@zynk/shared');
+    expect(AVATARS).toContain(me.avatar.id);
+    expect(AVATAR_COLORS.map((c) => c.id)).toContain(me.avatar.color);
+    const picked = await api(t, null).post('/auth/register', { username: 'picky', displayName: 'P', password: 'password123', avatar: { id: 'frog', color: 'pink' } });
+    expect(picked.json().user.avatar).toEqual({ id: 'frog', color: 'pink' });
+    const bad = await api(t, null).post('/auth/register', { username: 'baddy', displayName: 'B', password: 'password123', avatar: { id: 'selfie', color: 'pink' } });
+    expect(bad.json().error.code).toBe('unknown_item');
+  });
+
+  it('lets users change avatar (free) and shows it to others; photo uploads are gone', async () => {
+    const u = await register(t, 'changer');
+    const v = await register(t, 'looker');
+    const res = await api(t, u).patch('/me', { avatar: { id: 'robot', color: 'ink' } });
+    expect(res.json().avatar).toEqual({ id: 'robot', color: 'ink' });
+    expect((await api(t, v).get(`/users/${u.id}`)).json().avatar).toEqual({ id: 'robot', color: 'ink' });
+    expect((await api(t, u).patch('/me', { avatar: { id: 'robot', color: 'gold' } })).json().error.code).toBe('unknown_item');
+    const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]);
     const up = await t.app.inject({ method: 'PUT', url: '/me/avatar', payload: jpeg, headers: { authorization: `Bearer ${u.token}`, 'content-type': 'image/jpeg' } });
-    expect(up.statusCode).toBe(200);
-    expect(up.json().avatarUrl).toMatch(new RegExp(`^/avatars/${u.id}\\?v=1$`));
-    const fake = await t.app.inject({ method: 'PUT', url: '/me/avatar', payload: Buffer.from('<svg>'), headers: { authorization: `Bearer ${u.token}`, 'content-type': 'image/png' } });
-    expect(fake.statusCode).toBe(400);
-    const get = await api(t, viewer).get(`/avatars/${u.id}`);
-    expect(get.statusCode).toBe(200);
-    expect(get.headers['content-type']).toBe('image/jpeg');
-    await api(t, u).post('/blocks', { userId: viewer.id });
-    expect((await api(t, viewer).get(`/avatars/${u.id}`)).statusCode).toBe(404);
+    expect(up.statusCode).toBe(404);
   });
 
   it('does not leak private fields in public profiles', async () => {

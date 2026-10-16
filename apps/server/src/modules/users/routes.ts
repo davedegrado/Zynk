@@ -5,17 +5,8 @@ import { authOf, type AppContext } from '../../context';
 import { newInviteCode } from '../../lib/crypto';
 import { ApiError, notFound } from '../../lib/errors';
 import { parse } from '../../lib/validate';
-import { PUBLIC_USER_COLS, toMe, toPublicUser, type UserRow } from './model';
+import { assertAvatar, ME_COLS, PUBLIC_USER_COLS, toMe, toPublicUser, type UserRow } from './model';
 import { notBlockedSql, orderPair } from './relations';
-
-const MAX_AVATAR_BYTES = 512 * 1024;
-
-function sniffImage(buf: Buffer): 'image/jpeg' | 'image/png' | 'image/webp' | null {
-  if (buf.length > 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
-  if (buf.length > 8 && buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
-  if (buf.length > 12 && buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP') return 'image/webp';
-  return null;
-}
 
 export async function loadProfile(ctx: AppContext, viewerId: string, targetId: string): Promise<UserProfile> {
   const { rows } = await ctx.db.query<
@@ -57,7 +48,7 @@ export function userRoutes(app: FastifyInstance, ctx: AppContext) {
 
   app.get('/me', auth, async (req) => {
     const { rows } = await ctx.db.query<UserRow>(
-      `select id, username, display_name, avatar_version, avatar_mime, invite_code, created_at from users where id = $1`,
+      `select ${ME_COLS} from users where id = $1`,
       [authOf(req).userId],
     );
     if (!rows[0]) throw notFound();
@@ -66,12 +57,14 @@ export function userRoutes(app: FastifyInstance, ctx: AppContext) {
 
   app.patch('/me', auth, async (req) => {
     const body = parse(updateProfileSchema, req.body);
+    if (body.avatar) assertAvatar(body.avatar);
     try {
       const { rows } = await ctx.db.query<UserRow>(
-        `update users set display_name = coalesce($2, display_name), username = coalesce($3, username), updated_at = now()
+        `update users set display_name = coalesce($2, display_name), username = coalesce($3, username),
+                avatar_id = coalesce($4, avatar_id), avatar_color = coalesce($5, avatar_color), updated_at = now()
           where id = $1
-          returning id, username, display_name, avatar_version, avatar_mime, invite_code, created_at`,
-        [authOf(req).userId, body.displayName ?? null, body.username ?? null],
+          returning ${ME_COLS}`,
+        [authOf(req).userId, body.displayName ?? null, body.username ?? null, body.avatar?.id ?? null, body.avatar?.color ?? null],
       );
       return toMe(rows[0]!);
     } catch (err) {
@@ -80,42 +73,6 @@ export function userRoutes(app: FastifyInstance, ctx: AppContext) {
       }
       throw err;
     }
-  });
-
-  app.put('/me/avatar', { ...auth, bodyLimit: MAX_AVATAR_BYTES }, async (req) => {
-    const body = req.body;
-    if (!Buffer.isBuffer(body) || body.length === 0) throw new ApiError('bad_request', 'Send the image as the raw request body');
-    const mime = sniffImage(body);
-    if (!mime) throw new ApiError('bad_request', 'Only JPEG, PNG or WebP images are supported');
-    const { rows } = await ctx.db.query<UserRow>(
-      `update users set avatar = $2, avatar_mime = $3, avatar_version = avatar_version + 1, updated_at = now()
-        where id = $1 returning id, username, display_name, avatar_version, avatar_mime, invite_code, created_at`,
-      [authOf(req).userId, body, mime],
-    );
-    return toMe(rows[0]!);
-  });
-
-  app.delete('/me/avatar', auth, async (req) => {
-    const { rows } = await ctx.db.query<UserRow>(
-      `update users set avatar = null, avatar_mime = null, avatar_version = avatar_version + 1, updated_at = now()
-        where id = $1 returning id, username, display_name, avatar_version, avatar_mime, invite_code, created_at`,
-      [authOf(req).userId],
-    );
-    return toMe(rows[0]!);
-  });
-
-  app.get('/avatars/:id', auth, async (req, reply) => {
-    const { id } = parse(userIdParam, req.params);
-    const viewer = authOf(req).userId;
-    const { rows } = await ctx.db.query<{ avatar: Buffer; avatar_mime: string }>(
-      `select avatar, avatar_mime from users u
-        where u.id = $2 and u.avatar is not null and u.status = 'active' and ${notBlockedSql('$1', 'u.id')}`,
-      [viewer, id],
-    );
-    const r = rows[0];
-    if (!r) throw notFound();
-    reply.header('content-type', r.avatar_mime).header('cache-control', 'private, max-age=86400');
-    return reply.send(r.avatar);
   });
 
   app.get('/users/search', { ...auth, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (req) => {

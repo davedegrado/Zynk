@@ -6,6 +6,7 @@ import { ACCENTS, BUBBLE_COLORS, EFFECTS, getBubbleColor, getSound, hasFeature, 
 import { Divider, Icon, PlusBadge, Screen, Section, Text, ToggleRow } from '../../../components/ui';
 import { burstColorsFor } from '../../../components/zynk/burstColors';
 import { ZynkBurst } from '../../../components/zynk/ZynkBurst';
+import { useI18n } from '../../../i18n';
 import { useFeatures, usePreferences } from '../../../lib/hooks';
 import { useUpdatePrefs } from '../../../lib/prefs';
 import { playSound } from '../../../lib/sounds';
@@ -14,6 +15,7 @@ import { useAppTheme } from '../../../theme/ThemeProvider';
 
 function Swatches({ items, value, onSelect, label }: { items: readonly ColorSwatch[]; value: string; onSelect: (id: string) => void; label: string }) {
   const t = useAppTheme();
+  const { td } = useI18n();
   const features = useFeatures();
   return (
     <View style={{ gap: space.sm }}>
@@ -26,7 +28,7 @@ function Swatches({ items, value, onSelect, label }: { items: readonly ColorSwat
             <Pressable
               key={s.id}
               accessibilityRole="radio"
-              accessibilityLabel={`${s.name}${locked ? ', Speow Plus' : ''}`}
+              accessibilityLabel={`${td(`color.${s.id}`, s.name)}${locked ? ', Speow Plus' : ''}`}
               accessibilityState={{ checked: selected }}
               onPress={() => (locked ? router.push('/plus') : onSelect(s.id))}
               style={[styles.swatch, { backgroundColor: s.color, borderColor: selected ? t.colors.text : t.colors.border }]}
@@ -42,18 +44,19 @@ function Swatches({ items, value, onSelect, label }: { items: readonly ColorSwat
 
 export default function AppearanceSettings() {
   const t = useAppTheme();
+  const { t: tr, td } = useI18n();
   const prefs = usePreferences().data?.selected;
   const features = useFeatures();
   const update = useUpdatePrefs();
   const systemReduce = useReducedMotion();
   const [preview, setPreview] = useState<{ id: string; key: number } | null>(null);
-  if (!prefs) return <Screen back title="Look & Effects"><Text tone="muted">Loading…</Text></Screen>;
+  if (!prefs) return <Screen back title={tr('look.title')}><Text tone="muted">{tr('common.loading')}</Text></Screen>;
   const bubble = getBubbleColor(prefs.bubbleColorId) ?? getBubbleColor('lime')!;
 
   return (
-    <Screen back title="Look & Effects" subtitle="How Speow! looks for you — and how your Speows look when they land.">
+    <Screen back title={tr('look.title')} subtitle={tr('look.subtitle')}>
       <View style={{ gap: space.sm }}>
-        <Text variant="label" tone="muted">Theme</Text>
+        <Text variant="label" tone="muted">{tr('look.theme')}</Text>
         <View style={styles.themes}>
           {THEMES.map((th) => {
             const locked = !hasFeature(features, th.requiredFeature);
@@ -63,13 +66,13 @@ export default function AppearanceSettings() {
                 key={th.id}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: selected }}
-                accessibilityLabel={`${th.name} theme${locked ? ', Speow Plus' : ''}`}
+                accessibilityLabel={`${tr('look.themeA11y', { name: td(`theme.${th.id}`, th.name) })}${locked ? ', Speow Plus' : ''}`}
                 onPress={() => (locked ? router.push('/plus') : update.mutate({ themeId: th.id, appearance: 'theme' }))}
                 style={[styles.theme, { backgroundColor: th.colors.background, borderColor: selected ? (t.scheme === 'light' ? t.colors.text : t.colors.accent) : th.colors.border }]}
               >
                 <View style={[styles.themeBar, { backgroundColor: th.colors.surfaceAlt }]} />
                 <View style={[styles.themeDot, { backgroundColor: ACCENTS.find((a) => a.id === th.defaultAccentId)?.color }]} />
-                <Text variant="caption" style={{ color: th.colors.text, fontFamily: 'SpaceGrotesk_700Bold' }}>{th.name}</Text>
+                <Text variant="caption" style={{ color: th.colors.text, fontFamily: 'SpaceGrotesk_700Bold' }}>{td(`theme.${th.id}`, th.name)}</Text>
                 {locked ? <View style={styles.themeBadge}><PlusBadge locked /></View> : null}
               </Pressable>
             );
@@ -78,17 +81,18 @@ export default function AppearanceSettings() {
       </View>
       <Section>
         <ToggleRow
-          title="Match system (Dark / Light)"
+          title={tr('look.matchSystem')}
           value={prefs.appearance === 'system'}
           onChange={(v) => update.mutate({ appearance: v ? 'system' : 'theme' })}
         />
       </Section>
 
-      <Swatches label="Accent color" items={ACCENTS} value={prefs.accentId} onSelect={(id) => update.mutate({ accentId: id })} />
-      <Swatches label="Speow bubble" items={BUBBLE_COLORS} value={prefs.bubbleColorId} onSelect={(id) => update.mutate({ bubbleColorId: id })} />
+      <Swatches label={tr('look.accent')} items={ACCENTS} value={prefs.accentId} onSelect={(id) => update.mutate({ accentId: id })} />
+      <Swatches label={tr('look.bubble')} items={BUBBLE_COLORS} value={prefs.bubbleColorId} onSelect={(id) => update.mutate({ bubbleColorId: id })} />
+      <Text variant="caption" tone="muted">{tr('look.bubbleFooter')}</Text>
 
       <View style={{ gap: space.sm }}>
-        <Text variant="label" tone="muted">Speow effect</Text>
+        <Text variant="label" tone="muted">{tr('look.effect')}</Text>
         <View style={{ alignItems: 'center', height: 200, justifyContent: 'center' }}>
           <ZynkBurst
             playKey={preview?.key ?? 0}
@@ -111,7 +115,7 @@ export default function AppearanceSettings() {
                 <Pressable
                   accessibilityRole="radio"
                   accessibilityState={{ checked: selected }}
-                  accessibilityLabel={`${e.name}${locked ? ', Speow Plus, tap to preview' : ''}`}
+                  accessibilityLabel={`${td(`effect.${e.id}.name`, e.name)}${locked ? tr('look.lockedA11y') : ''}`}
                   onPress={() => {
                     setPreview({ id: e.id, key: Date.now() });
                     if (e.pairedSoundId && prefs.soundsEnabled) void playSound(e.pairedSoundId, 0.7);
@@ -120,10 +124,10 @@ export default function AppearanceSettings() {
                   style={styles.effectRow}
                 >
                   <View style={{ flex: 1, gap: 2 }}>
-                    <Text variant="bodyStrong">{e.name}</Text>
+                    <Text variant="bodyStrong">{td(`effect.${e.id}.name`, e.name)}</Text>
                     <Text variant="caption" tone="muted">
-                      {e.description}
-                      {e.pairedSoundId ? ` (${getSound(e.pairedSoundId)?.name})` : ''}
+                      {td(`effect.${e.id}.desc`, e.description)}
+                      {e.pairedSoundId ? ` (${td(`sound.${e.pairedSoundId}.name`, getSound(e.pairedSoundId)?.name ?? '')})` : ''}
                     </Text>
                   </View>
                   {locked ? <PlusBadge locked /> : selected ? <Icon name="check" color={t.colors.accentText} /> : null}
@@ -134,14 +138,14 @@ export default function AppearanceSettings() {
           })}
         </Section>
         {EFFECTS.some((e) => !hasFeature(features, e.requiredFeature)) ? (
-          <Text variant="caption" tone="muted">Tap a locked effect to preview it. Unlock all effects with Speow Plus.</Text>
+          <Text variant="caption" tone="muted">{tr('look.lockedHint')}</Text>
         ) : null}
       </View>
 
-      <Section title="Received Speows" footer="Your settings always decide how Speows look on your phone.">
-        <ToggleRow title="Show friends' colors & effects" value={prefs.showSenderStyle} onChange={(v) => update.mutate({ showSenderStyle: v })} />
+      <Section title={tr('look.received')} footer={tr('look.receivedFooter')}>
+        <ToggleRow title={tr('look.showSender')} value={prefs.showSenderStyle} onChange={(v) => update.mutate({ showSenderStyle: v })} />
         <Divider />
-        <ToggleRow title="Reduce motion" subtitle="Calm fade instead of bursts and shakes" value={prefs.reduceMotion} onChange={(v) => update.mutate({ reduceMotion: v })} />
+        <ToggleRow title={tr('look.reduceMotion')} subtitle={tr('look.reduceMotionSub')} value={prefs.reduceMotion} onChange={(v) => update.mutate({ reduceMotion: v })} />
       </Section>
     </Screen>
   );

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { SOUNDS, type PushData } from '@zynk/shared';
+import { translate, translateDynamic } from '../i18n';
 import { api } from './api';
 import { EAS_PROJECT_ID } from './config';
 import { incomingZynks } from './events';
@@ -34,7 +35,7 @@ export async function ensureAndroidChannels() {
   await Promise.all([
     ...SOUNDS.map((s) =>
       Notifications.setNotificationChannelAsync(s.id, {
-        name: `Speows · ${s.name}`,
+        name: `Speow · ${translateDynamic(`sound.${s.id}.name`, s.name)}`,
         description: `Speows that use the ${s.name} sound`,
         importance: AndroidImportance.HIGH,
         sound: `${s.file}.wav`,
@@ -43,14 +44,14 @@ export async function ensureAndroidChannels() {
       }),
     ),
     Notifications.setNotificationChannelAsync('zynk_silent', {
-      name: 'Speows · Silent',
-      description: 'Speows when you have turned Speow sounds off',
+      name: translate('channel.silent'),
+      description: translate('channel.silentDesc'),
       importance: AndroidImportance.HIGH,
       sound: null,
       vibrationPattern: [0, 120, 60, 120],
     }),
     Notifications.setNotificationChannelAsync('social', {
-      name: 'Friend requests',
+      name: translate('notif.requests'),
       importance: AndroidImportance.DEFAULT,
     }),
   ]);

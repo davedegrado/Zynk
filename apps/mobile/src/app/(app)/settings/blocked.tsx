@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { StyleSheet, View } from 'react-native';
 import { Avatar, Button, EmptyState, Loading, Screen, Text, useToast } from '../../../components/ui';
+import { useI18n } from '../../../i18n';
 import { api, errorMessage } from '../../../lib/api';
 import { useBlocks } from '../../../lib/hooks';
 import { keys, queryClient } from '../../../lib/query';
@@ -9,22 +10,23 @@ import { useAppTheme } from '../../../theme/ThemeProvider';
 
 export default function BlockedUsers() {
   const t = useAppTheme();
+  const { t: tr } = useI18n();
   const toast = useToast();
   const blocks = useBlocks();
   const unblock = useMutation({
     mutationFn: api.unblock,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: keys.blocks });
-      toast('Unblocked');
+      toast(tr('user.unblocked'));
     },
     onError: (e) => toast(errorMessage(e), 'error'),
   });
   return (
-    <Screen back title="Blocked users" subtitle="Blocked people can't find you, add you or send you a Speow. They aren't notified.">
+    <Screen back title={tr('blocked.title')} subtitle={tr('blocked.subtitle')}>
       {blocks.isLoading ? (
         <Loading />
       ) : !blocks.data?.length ? (
-        <EmptyState title="No one blocked" body="You can block anyone from their profile." />
+        <EmptyState title={tr('blocked.emptyTitle')} body={tr('blocked.emptyBody')} />
       ) : (
         blocks.data.map((u) => (
           <View key={u.id} style={[styles.row, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
@@ -33,7 +35,7 @@ export default function BlockedUsers() {
               <Text variant="bodyStrong">{u.displayName}</Text>
               <Text variant="caption" tone="muted">@{u.username}</Text>
             </View>
-            <Button title="Unblock" size="sm" variant="secondary" onPress={() => unblock.mutate(u.id)} />
+            <Button title={tr('user.unblock')} size="sm" variant="secondary" onPress={() => unblock.mutate(u.id)} />
           </View>
         ))
       )}

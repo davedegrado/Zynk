@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, type ScrollViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useI18n } from '../../i18n';
 import { space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { IconButton } from './Button';
@@ -21,10 +22,11 @@ interface ScreenProps {
 
 export function Screen({ title, subtitle, back, right, scroll = true, children, refreshControl, edges = ['top', 'bottom'] }: ScreenProps) {
   const t = useAppTheme();
+  const { t: tr } = useI18n();
   const header = (title || back || right) && (
     <View style={styles.header}>
       <View style={styles.headerRow}>
-        {back ? <IconButton name="back" label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} /> : null}
+        {back ? <IconButton name="back" label={tr('common.back')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} /> : null}
         <View style={{ flex: 1 }} />
         {right}
       </View>

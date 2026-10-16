@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import { useI18n } from '../../i18n';
 import { space } from '../../theme/tokens';
 import { Logo } from '../brand/Logo';
 import { Button } from './Button';
@@ -8,6 +9,7 @@ import { Text } from './Text';
 
 /** Branded loading indicator: the logo gives a little "nudge" shake. */
 export function Loading({ label, size = 56 }: { label?: string; size?: number }) {
+  const { t } = useI18n();
   const reduce = useReducedMotion();
   const r = useSharedValue(0);
   useEffect(() => {
@@ -19,7 +21,7 @@ export function Loading({ label, size = 56 }: { label?: string; size?: number })
   }, [r, reduce]);
   const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
   return (
-    <View style={styles.center} accessibilityRole="progressbar" accessibilityLabel={label ?? 'Loading'}>
+    <View style={styles.center} accessibilityRole="progressbar" accessibilityLabel={label ?? t('common.loading')}>
       <Animated.View style={style}>
         <Logo size={size} />
       </Animated.View>
@@ -40,11 +42,12 @@ export function EmptyState({ title, body, action, onAction, art }: { title: stri
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const { t } = useI18n();
   return (
     <View style={[styles.center, { paddingVertical: space.xxl }]} accessibilityRole="alert">
-      <Text variant="heading" center>Hmm, that didn&apos;t land.</Text>
+      <Text variant="heading" center>{t('error.title')}</Text>
       <Text tone="muted" center style={{ maxWidth: 300 }}>{message}</Text>
-      {onRetry ? <Button title="Try again" variant="secondary" onPress={onRetry} /> : null}
+      {onRetry ? <Button title={t('common.tryAgain')} variant="secondary" onPress={onRetry} /> : null}
     </View>
   );
 }

@@ -7,6 +7,7 @@ import { Avatar, CountBadge, EmptyState, ErrorState, Icon, Loading, Screen, Text
 import { PushPrompt } from '../../../components/zynk/PushPrompt';
 import { useSendZynk } from '../../../components/zynk/useSendZynk';
 import { ZynkMini } from '../../../components/zynk/ZynkButton';
+import { useI18n } from '../../../i18n';
 import { errorMessage } from '../../../lib/api';
 import { timeAgo } from '../../../lib/format';
 import { useFriends } from '../../../lib/hooks';
@@ -16,11 +17,12 @@ import { useAppTheme } from '../../../theme/ThemeProvider';
 function FriendRow({ friend }: { friend: FriendSummary }) {
   const t = useAppTheme();
   const toast = useToast();
-  const { send, sending } = useSendZynk(friend.id, { onSent: (r) => !r.duplicate && toast(`You sent ${friend.displayName} a Speow!`, 'success') });
+  const { t: tr } = useI18n();
+  const { send, sending } = useSendZynk(friend.id, { onSent: (r) => !r.duplicate && toast(tr('friends.sent', { name: friend.displayName }), 'success') });
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${friend.displayName}, open profile`}
+      accessibilityLabel={tr('friends.openProfile', { name: friend.displayName })}
       onPress={() => router.push(`/user/${friend.id}`)}
       style={({ pressed }) => [styles.row, { backgroundColor: pressed ? t.colors.surfaceAlt : t.colors.surface, borderColor: t.colors.border }]}
     >
@@ -36,12 +38,13 @@ function FriendRow({ friend }: { friend: FriendSummary }) {
         </Text>
       </View>
       <CountBadge count={friend.unseenFromThem} />
-      <ZynkMini onPress={() => send(null)} disabled={sending} accessibilityLabel={`Send ${friend.displayName} a Speow`} />
+      <ZynkMini onPress={() => send(null)} disabled={sending} accessibilityLabel={tr('friends.send', { name: friend.displayName })} />
     </Pressable>
   );
 }
 
 export default function FriendsScreen() {
+  const { t } = useI18n();
   const friends = useFriends();
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
@@ -61,14 +64,14 @@ export default function FriendsScreen() {
         <ErrorState message={errorMessage(friends.error)} onRetry={() => friends.refetch()} />
       ) : !friends.data?.length ? (
         <EmptyState
-          title="It's quiet in here"
-          body="Add a friend by username or share your invite link. Then send your first Speow."
-          action="Add friends"
+          title={t('friends.emptyTitle')}
+          body={t('friends.emptyBody')}
+          action={t('friends.emptyAction')}
           onAction={() => router.push('/add')}
         />
       ) : (
         <View style={{ gap: space.sm }}>
-          <Text variant="label" tone="muted">Tap the bubble to send a Speow</Text>
+          <Text variant="label" tone="muted">{t('friends.hint')}</Text>
           {friends.data.map((f) => (
             <FriendRow key={f.id} friend={f} />
           ))}

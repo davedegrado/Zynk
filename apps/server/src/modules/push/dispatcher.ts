@@ -1,4 +1,4 @@
-import { describeReaction, getSound, resolveIncomingSound, type PushData } from '@zynk/shared';
+import { colorName, describeReaction, getSound, PUSH_COPY, resolveIncomingSound, type PushData } from '@zynk/shared';
 import type { FastifyBaseLogger } from 'fastify';
 import type { Config } from '../../config';
 import type { Db } from '../../db/pool';
@@ -79,8 +79,9 @@ export class PushDispatcher {
     const { rows } = await this.db.query<{
       sender_id: string; recipient_id: string; sound_id: string | null; reaction_id: string | null;
       reaction_fallback: string | null; created_at: Date; sender_name: string; muted: boolean; friend_sound_id: string | null;
+      bubble_color_id: string;
     }>(
-      `select z.sender_id, z.recipient_id, z.sound_id, z.reaction_id, z.reaction_fallback, z.created_at,
+      `select z.sender_id, z.recipient_id, z.sound_id, z.reaction_id, z.reaction_fallback, z.created_at, z.bubble_color_id,
               s.display_name as sender_name,
               exists (select 1 from mutes m where m.user_id = z.recipient_id and m.muted_id = z.sender_id) as muted,
               (select sound_id from friend_sounds fs where fs.user_id = z.recipient_id and fs.friend_id = z.sender_id) as friend_sound_id
@@ -117,14 +118,15 @@ export class PushDispatcher {
     });
     const sound = getSound(soundId);
     const reaction = describeReaction(z.reaction_id, z.reaction_fallback);
+    const copy = PUSH_COPY[prefs.language] ?? PUSH_COPY.en;
     const data: PushData = { type: 'zynk', zynkId, senderId: z.sender_id, url: `zynk://activity?zynk=${zynkId}` };
     const badge = await this.unseenCount(z.recipient_id);
 
     const ok = await this.sendTo(devices, (d) => ({
       to: d.token,
       platform: d.platform,
-      title: 'Speow!',
-      body: `${z.sender_name} sent you a Speow${reaction ? ` ${reaction.glyph}` : '!'}`,
+      title: copy.speowTitle,
+      body: copy.speowBody(z.sender_name, colorName(prefs.language, z.bubble_color_id), reaction?.glyph ?? null),
       data: { ...data, soundId: sound?.id ?? null },
       iosSound: sound ? `${sound.file}.wav` : null,
       androidChannelId: androidChannelFor(sound?.id ?? null),
@@ -140,6 +142,7 @@ export class PushDispatcher {
     if (!devices.length) return;
     const { rows } = await this.db.query<{ display_name: string }>('select display_name from users where id = $1', [otherUserId]);
     const name = rows[0]?.display_name ?? 'Someone';
+    const copy = PUSH_COPY[prefs.language] ?? PUSH_COPY.en;
     const data: PushData =
       kind === 'friend_request'
         ? { type: 'friend_request', requestId: requestId!, fromUserId: otherUserId, url: 'zynk://add' }
@@ -147,8 +150,8 @@ export class PushDispatcher {
     await this.sendTo(devices, (d) => ({
       to: d.token,
       platform: d.platform,
-      title: kind === 'friend_request' ? 'New friend request' : 'You have a new friend',
-      body: kind === 'friend_request' ? `${name} wants to be friends on Speow!` : `${name} accepted your request. Send a Speow!`,
+      title: kind === 'friend_request' ? copy.requestTitle : copy.acceptedTitle,
+      body: kind === 'friend_request' ? copy.requestBody(name) : copy.acceptedBody(name),
       data,
       iosSound: 'default',
       androidChannelId: 'social',

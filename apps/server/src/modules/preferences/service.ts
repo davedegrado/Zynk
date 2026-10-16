@@ -17,13 +17,14 @@ interface PrefRow {
   push_enabled: boolean; zynk_push: boolean; friend_request_push: boolean; haptics: boolean;
   sounds_enabled: boolean; allow_sender_sounds: boolean; show_sender_style: boolean; reduce_motion: boolean;
   appearance: 'theme' | 'system';
+  language: 'en' | 'it';
   incoming_sound_id: string; outgoing_sound_id: string; theme_id: string; accent_id: string; bubble_color_id: string; effect_id: string;
 }
 
 const COLUMN: Record<keyof Preferences, keyof PrefRow> = {
   pushEnabled: 'push_enabled', zynkPush: 'zynk_push', friendRequestPush: 'friend_request_push', haptics: 'haptics',
   soundsEnabled: 'sounds_enabled', allowSenderSounds: 'allow_sender_sounds', showSenderStyle: 'show_sender_style',
-  reduceMotion: 'reduce_motion', appearance: 'appearance', incomingSoundId: 'incoming_sound_id',
+  reduceMotion: 'reduce_motion', appearance: 'appearance', language: 'language', incomingSoundId: 'incoming_sound_id',
   outgoingSoundId: 'outgoing_sound_id', themeId: 'theme_id', accentId: 'accent_id', bubbleColorId: 'bubble_color_id', effectId: 'effect_id',
 };
 

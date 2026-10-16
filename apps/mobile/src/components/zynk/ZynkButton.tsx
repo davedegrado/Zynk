@@ -17,10 +17,13 @@ interface Props {
   size?: number;
   label?: string;
   accessibilityLabel: string;
+  /** Fill + text colors (defaults to the theme accent). */
+  fill?: string;
+  ink?: string;
 }
 
 /** The prominent "Send a Speow" button, shaped like the logo's bubble + burst. */
-export function ZynkButton({ onPress, disabled, size = 200, label = 'Speow!', accessibilityLabel }: Props) {
+export function ZynkButton({ onPress, disabled, size = 200, label = 'Speow!', accessibilityLabel, fill, ink }: Props) {
   const t = useAppTheme();
   const scale = useSharedValue(1);
   const rot = useSharedValue(0);
@@ -42,13 +45,13 @@ export function ZynkButton({ onPress, disabled, size = 200, label = 'Speow!', ac
     >
       <Svg width={size} height={size} viewBox={logo.viewBox} style={StyleSheet.absoluteFill}>
         {FG_LAYERS.map((l) => (
-          <Path key={l.id} d={l.d} fill={t.colors.accent} stroke={light ? t.colors.text : t.colors.accent} strokeWidth={light ? 10 : 0} strokeLinejoin="round" />
+          <Path key={l.id} d={l.d} fill={fill ?? t.colors.accent} stroke={light || (fill && fill !== t.colors.accent) ? t.colors.text : t.colors.accent} strokeWidth={light || (fill && fill !== t.colors.accent) ? 10 : 0} strokeLinejoin="round" />
         ))}
       </Svg>
       <View style={[styles.body, { left: BODY.left * size, top: BODY.top * size, width: BODY.width * size, height: BODY.height * size }]}>
         <Text
           allowFontScaling={false}
-          style={{ fontFamily: fonts.display, fontSize: size * 0.115, lineHeight: size * 0.15, color: t.colors.onAccent, letterSpacing: -0.5, transform: [{ rotate: '-6deg' }] }}
+          style={{ fontFamily: fonts.display, fontSize: size * 0.115, lineHeight: size * 0.15, color: ink ?? t.colors.onAccent, letterSpacing: -0.5, transform: [{ rotate: '-6deg' }] }}
         >
           {label}
         </Text>

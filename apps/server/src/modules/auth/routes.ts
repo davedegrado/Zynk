@@ -11,7 +11,7 @@ import { withTransaction } from '../../db/pool';
 import { getDummyHash, hashPassword, newInviteCode, verifyPassword } from '../../lib/crypto';
 import { ApiError } from '../../lib/errors';
 import { parse } from '../../lib/validate';
-import { toMe, type UserRow } from '../users/model';
+import { assertAvatar, ME_COLS, randomAvatar, toMe, type UserRow } from '../users/model';
 import { createSession } from './sessions';
 import { deleteAccount } from './delete-account';
 
@@ -41,18 +41,20 @@ export function authRoutes(app: FastifyInstance, ctx: AppContext) {
 
   app.post('/auth/register', { config: authRateLimit }, async (req, reply) => {
     const body = parse(registerSchema, req.body);
+    if (body.avatar) assertAvatar(body.avatar);
+    const avatar = body.avatar ?? randomAvatar();
     const passwordHash = await hashPassword(body.password);
     const now = ctx.now();
     try {
       const result = await withTransaction(ctx.db, async (tx) => {
         const { rows } = await tx.query<UserRow>(
-          `insert into users (username, display_name, password_hash, invite_code, created_at, updated_at)
-           values ($1, $2, $3, $4, $5, $5)
-           returning id, username, display_name, avatar_version, avatar_mime, invite_code, created_at`,
-          [body.username, body.displayName, passwordHash, newInviteCode(), now],
+          `insert into users (username, display_name, password_hash, invite_code, avatar_id, avatar_color, created_at, updated_at)
+           values ($1, $2, $3, $4, $5, $6, $7, $7)
+           returning ${ME_COLS}`,
+          [body.username, body.displayName, passwordHash, newInviteCode(), avatar.id, avatar.color, now],
         );
         const user = rows[0]!;
-        await tx.query('insert into preferences (user_id) values ($1)', [user.id]);
+        await tx.query('insert into preferences (user_id, language) values ($1, $2)', [user.id, body.language ?? 'en']);
         const session = await createSession(tx, user.id, ctx.config.sessionTtlMs, now);
         return { user, token: session.token };
       });
@@ -71,8 +73,7 @@ export function authRoutes(app: FastifyInstance, ctx: AppContext) {
     const now = ctx.now();
     throttle.check(body.username, now.getTime());
     const { rows } = await ctx.db.query<UserRow & { password_hash: string }>(
-      `select id, username, display_name, avatar_version, avatar_mime, invite_code, created_at, status, password_hash
-         from users where username = $1`,
+      `select ${ME_COLS}, status, password_hash from users where username = $1`,
       [body.username],
     );
     const user = rows[0];

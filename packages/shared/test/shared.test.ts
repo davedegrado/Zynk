@@ -106,7 +106,7 @@ describe('personalization', () => {
       outgoingSoundId: 'zynk_classic',
       themeId: 'night',
       accentId: 'lime',
-      bubbleColorId: 'lime',
+      bubbleColorId: 'blue', // Speow colors are free
       effectId: 'classic',
     });
   });
@@ -159,5 +159,14 @@ describe('brand', () => {
     expect(dark.colors.background).toBe('#111111');
     // Acid lime on near-black must be comfortably readable (it's the primary accent).
     expect(contrastRatio(BRAND.colors.lime, BRAND.colors.ink)).toBeGreaterThanOrEqual(7);
+  });
+});
+
+describe('avatars', () => {
+  it('every catalog avatar has art and every color has readable ink', async () => {
+    const { AVATARS, AVATAR_ART, AVATAR_COLORS } = await import('../src');
+    expect([...AVATARS].sort()).toEqual(Object.keys(AVATAR_ART).sort());
+    for (const id of AVATARS) expect(AVATAR_ART[id].length).toBeGreaterThan(3);
+    for (const c of AVATAR_COLORS) expect(contrastRatio(c.color, c.ink)).toBeGreaterThanOrEqual(4.5);
   });
 });

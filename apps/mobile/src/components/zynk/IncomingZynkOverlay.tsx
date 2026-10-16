@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, useReducedMotion } from 'react-native-reanimated';
-import { getBubbleColor, resolveIncomingPresentation, resolveIncomingSound, type FriendSummary } from '@zynk/shared';
+import { colorName, getBubbleColor, resolveIncomingPresentation, resolveIncomingSound, type FriendSummary } from '@zynk/shared';
+import { useI18n } from '../../i18n';
 import { api } from '../../lib/api';
 import { incomingZynks, type IncomingZynk } from '../../lib/events';
 import { haptic } from '../../lib/haptics';
@@ -64,6 +65,7 @@ export function IncomingZynkOverlay() {
 
 function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: () => void }) {
   const t = useAppTheme();
+  const { t: tr, lang } = useI18n();
   const prefs = useEffectivePrefs();
   const features = useFeatures();
   const systemReduceMotion = useReducedMotion();
@@ -114,7 +116,7 @@ function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: (
 
   return (
     <Modal transparent visible animationType="none" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Dismiss">
+      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel={tr('common.dismiss')}>
         <Animated.View entering={FadeIn.duration(140)} exiting={FadeOut.duration(140)} style={[styles.card, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
           <ZynkBurst
             playKey={playKey}
@@ -133,12 +135,15 @@ function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: (
           </ZynkBurst>
           <View style={styles.who}>
             <Avatar user={zynk.counterpart} size={40} />
-            <Text variant="heading" accessibilityLiveRegion="assertive">{zynk.counterpart.displayName} sent you a Speow!</Text>
+            <Text variant="heading" accessibilityLiveRegion="assertive">{zynk.bubbleColorId && colorName(lang, zynk.bubbleColorId)
+                ? tr('activity.receivedColor', { name: zynk.counterpart.displayName, color: colorName(lang, zynk.bubbleColorId)! })
+                : tr('activity.received', { name: zynk.counterpart.displayName })}
+            </Text>
           </View>
           <View style={styles.actions}>
-            <Button title="Later" variant="ghost" size="sm" onPress={onClose} />
+            <Button title={tr('common.later')} variant="ghost" size="sm" onPress={onClose} />
             <Button
-              title="Speow back"
+              title={tr('activity.speowBack')}
               icon="bolt"
               size="sm"
               onPress={() => {
@@ -153,7 +158,7 @@ function OverlayCard({ incoming, onClose }: { incoming: IncomingZynk; onClose: (
               router.push(`/user/${zynk.counterpart.id}`);
             }}
           >
-            <Text variant="caption" tone="muted">View profile</Text>
+            <Text variant="caption" tone="muted">{tr('overlay.viewProfile')}</Text>
           </Pressable>
         </Animated.View>
       </Pressable>

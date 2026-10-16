@@ -68,12 +68,15 @@ caps) apply equally to everyone and are configured separately from monetization.
 | Blocking, muting, reporting, notification settings | ✓ | ✓ |
 | Classic animation + Classic sound, haptics | ✓ | ✓ |
 | Basic reactions (8) — attach to a Speow or react to one | ✓ | ✓ |
-| Dark + Light themes, Acid Lime accent & bubble | ✓ | ✓ |
+| Dark + Light themes, Acid Lime accent | ✓ | ✓ |
+| 7 Speow colors — pick one for every Speow you send | ✓ | ✓ |
+| 12 drawn avatars × 7 background colors (no photos) | ✓ | ✓ |
+| English and Italian (follows the phone, or pick in Profile → Language) | ✓ | ✓ |
 | **Receiving** any premium sound / reaction / effect | ✓ | ✓ |
 | 8 exclusive original sounds (incoming + outgoing) | preview only | ✓ |
 | Per-friend sounds (recipient side) | — | ✓ |
 | Y2K Stickers + animated "Moves" reaction packs | preview only | ✓ |
-| 3 extra themes, 5 accent colors, 6 bubble colors | preview only | ✓ |
+| 3 extra themes, 5 accent colors | preview only | ✓ |
 | Shockwave, Thunderbolt, Confetti pop, Starburst effects (+ sound combos) | preview only | ✓ |
 
 Launch pricing (configurable, never hardcoded in UI): **€1.99/month**, **€14.99/year**.

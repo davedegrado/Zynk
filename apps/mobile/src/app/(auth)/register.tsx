@@ -1,20 +1,32 @@
 import { useState } from 'react';
-import { usernameSchema } from '@zynk/shared';
-import { Button, Input, Screen, Text } from '../../components/ui';
-import { api, ApiError, errorMessage } from '../../lib/api';
+import { Pressable, View } from 'react-native';
+import { AVATAR_COLORS, AVATARS, usernameSchema, type Avatar } from '@zynk/shared';
+import { AvatarPicker } from '../../components/AvatarPicker';
+import { AvatarArt, Button, Input, Screen, Text } from '../../components/ui';
+import { useI18n } from '../../i18n';
+import { api, ApiError, errorMessage, fieldMessage } from '../../lib/api';
 import { useSession } from '../../lib/session';
+import { space } from '../../theme/tokens';
+
+const randomAvatar = (): Avatar => ({
+  id: AVATARS[Math.floor(Math.random() * AVATARS.length)]!,
+  color: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)]!.id,
+});
 
 export default function Register() {
   const { signIn } = useSession();
+  const { t, lang } = useI18n();
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
+  const [avatar, setAvatar] = useState<Avatar>(randomAvatar);
+  const [picking, setPicking] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const usernameCheck = username ? usernameSchema.safeParse(username) : null;
-  const usernameError = usernameCheck && !usernameCheck.success ? usernameCheck.error.issues[0]?.message : fields.username;
+  const usernameValid = username ? usernameSchema.safeParse(username).success : null;
+  const usernameError = usernameValid === false ? t('register.usernameInvalid') : fields.username;
 
   const submit = async () => {
     if (busy) return;
@@ -22,9 +34,21 @@ export default function Register() {
     setError(null);
     setFields({});
     try {
-      await signIn(await api.register({ username: username.trim().toLowerCase(), displayName: displayName.trim() || username.trim(), password }));
+      await signIn(
+        await api.register({
+          username: username.trim().toLowerCase(),
+          displayName: displayName.trim() || username.trim(),
+          password,
+          avatar,
+          language: lang,
+        }),
+      );
     } catch (err) {
-      if (err instanceof ApiError && err.fields) setFields(err.fields);
+      if (err instanceof ApiError && err.fields) {
+        const f: Record<string, string> = {};
+        for (const k of Object.keys(err.fields)) f[k] = fieldMessage(err, k);
+        setFields(f);
+      }
       setError(errorMessage(err));
     } finally {
       setBusy(false);
@@ -32,36 +56,43 @@ export default function Register() {
   };
 
   return (
-    <Screen back title="Join Speow!" subtitle="Pick a username your friends can find you by.">
+    <Screen back title={t('register.title')} subtitle={t('register.subtitle')}>
+      <View style={{ alignItems: 'center', gap: space.sm }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={t('register.avatar')} onPress={() => setPicking((v) => !v)}>
+          <AvatarArt avatarId={avatar.id} colorId={avatar.color} size={104} />
+        </Pressable>
+        <Text variant="caption" tone="muted">{t('register.avatarHint')}</Text>
+      </View>
+      {picking ? <AvatarPicker value={avatar} onChange={setAvatar} /> : null}
       <Input
-        label="Username"
+        label={t('common.username')}
         icon="profile"
         autoCapitalize="none"
         autoCorrect={false}
         autoComplete="username-new"
         textContentType="username"
-        placeholder="e.g. sam.rivers"
+        placeholder={t('register.usernamePlaceholder')}
         value={username}
         onChangeText={(v) => setUsername(v.toLowerCase())}
         error={usernameError}
-        hint="3–20 characters: letters, numbers, dots, underscores."
+        hint={t('register.usernameHint')}
         maxLength={20}
       />
-      <Input label="Display name" placeholder="What friends see" value={displayName} onChangeText={setDisplayName} maxLength={40} error={fields.displayName} autoComplete="name" />
+      <Input label={t('common.displayName')} placeholder={t('register.displayNamePlaceholder')} value={displayName} onChangeText={setDisplayName} maxLength={40} error={fields.displayName} autoComplete="name" />
       <Input
-        label="Password"
+        label={t('common.password')}
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
         value={password}
         onChangeText={setPassword}
         error={fields.password}
-        hint="At least 8 characters."
+        hint={t('register.passwordHint')}
       />
       {error && !Object.keys(fields).length ? <Text tone="danger" accessibilityRole="alert">{error}</Text> : null}
-      <Button title="Create account" onPress={submit} loading={busy} disabled={!usernameCheck?.success || password.length < 8} fullWidth />
+      <Button title={t('register.submit')} onPress={submit} loading={busy} disabled={!usernameValid || password.length < 8} fullWidth />
       <Text variant="caption" tone="muted" center>
-        No contacts access, no public follower counts, no ads. Just Speows.
+        {t('register.footer')}
       </Text>
     </Screen>
   );

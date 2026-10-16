@@ -37,7 +37,7 @@ export const FEATURE_INFO: Record<FeatureId, { title: string; description: strin
   },
   custom_themes: {
     title: 'Colors & themes',
-    description: 'Your own accent color, Speow bubble color and extra app themes.',
+    description: 'Your own accent color and extra app themes.',
   },
   exclusive_effects: {
     title: 'Exclusive effects',

@@ -5,8 +5,9 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { FEATURE_IDS, FEATURE_INFO, type FeatureId } from '@zynk/shared';
 import { Button, Card, Icon, Loading, PlusBadge, Screen, Text, useToast, type IconName } from '../../components/ui';
 import { ReactionGlyph } from '../../components/zynk/ReactionGlyph';
+import { useI18n } from '../../i18n';
 import { LEGAL_URLS } from '../../lib/config';
-import { periodLabel } from '../../lib/format';
+import { formatDate, periodLabel } from '../../lib/format';
 import { useEntitlements, useIsPlus, usePlans } from '../../lib/hooks';
 import { loadStorePlans, openManageSubscription, purchasePlan, purchasesAvailableOnDevice, restorePurchases, type PurchaseOutcome, type StorePlan } from '../../lib/purchases';
 import { useSession } from '../../lib/session';
@@ -20,18 +21,9 @@ const FEATURE_ICON: Record<FeatureId, IconName> = {
   exclusive_effects: 'star',
 };
 
-const STATUS_TEXT: Record<string, string> = {
-  active: 'Active — renews automatically',
-  cancelled: 'Cancelled — active until the end of the period',
-  in_grace: 'Billing issue — still active while the store retries',
-  billing_issue: 'Billing issue — update your payment method in the store',
-  expired: 'Expired',
-  refunded: 'Refunded',
-  paused: 'Paused',
-};
-
 export default function PlusScreen() {
   const t = useAppTheme();
+  const { t: tr, td } = useI18n();
   const toast = useToast();
   const { user } = useSession();
   const isPlus = useIsPlus();
@@ -53,15 +45,15 @@ export default function PlusScreen() {
     switch (o.kind) {
       case 'success':
         setPending(false);
-        toast('Welcome to Speow Plus! ⚡', 'success');
+        toast(tr('plus.welcome'), 'success');
         break;
       case 'verifying':
         setPending(true);
-        toast('Purchase received — verifying with the store…', 'info');
+        toast(tr('plus.verifying'), 'info');
         break;
       case 'pending':
         setPending(true);
-        toast('Purchase pending approval. Plus unlocks as soon as it completes.', 'info');
+        toast(tr('plus.pending'), 'info');
         break;
       case 'error':
         toast(o.message, 'error');
@@ -81,19 +73,19 @@ export default function PlusScreen() {
   };
 
   return (
-    <Screen back title="Speow Plus" subtitle="More ways to express yourself. Sending Speows is — and stays — free.">
+    <Screen back title="Speow Plus" subtitle={tr('plus.subtitle')}>
       <View style={styles.features}>
         {FEATURE_IDS.map((f) => (
           <Card key={f} style={styles.feature}>
             <View style={[styles.featureIcon, { backgroundColor: t.colors.accent }]}>
               <Icon name={FEATURE_ICON[f]} color={t.colors.onAccent} />
             </View>
-            <Text variant="bodyStrong">{FEATURE_INFO[f].title}</Text>
-            <Text variant="caption" tone="muted">{FEATURE_INFO[f].description}</Text>
+            <Text variant="bodyStrong">{td(`feature.${f}.title`, FEATURE_INFO[f].title)}</Text>
+            <Text variant="caption" tone="muted">{td(`feature.${f}.desc`, FEATURE_INFO[f].description)}</Text>
           </Card>
         ))}
       </View>
-      <View style={styles.preview} accessibilityLabel="Preview of Plus reactions">
+      <View style={styles.preview} accessibilityLabel={tr('plus.previewA11y')}>
         {['y2k:sparkle', 'y2k:alien', 'y2k:butterfly', 'moves:hop_frog', 'y2k:pixel_heart'].map((r) => (
           <ReactionGlyph key={r} reactionId={r} size={44} />
         ))}
@@ -102,18 +94,18 @@ export default function PlusScreen() {
       {isPlus ? (
         <Card style={{ gap: space.sm, borderColor: t.colors.accent, borderWidth: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-            <Text variant="heading">You have Plus</Text>
+            <Text variant="heading">{tr('plus.youHave')}</Text>
             <PlusBadge />
           </View>
           {sub ? (
             <>
-              <Text>{STATUS_TEXT[sub.status] ?? sub.status}</Text>
-              {sub.expiresAt ? <Text tone="muted">{sub.willRenew ? 'Renews' : 'Ends'} {new Date(sub.expiresAt).toLocaleDateString()}</Text> : null}
-              {sub.isSandbox ? <Text variant="caption" tone="muted">Sandbox purchase (testing)</Text> : null}
-              <Button title={`Manage in ${Platform.OS === 'ios' ? 'App Store' : 'Google Play'}`} variant="secondary" size="sm" onPress={() => void openManageSubscription(sub.managementUrl, sub.productId)} />
+              <Text>{td(`plus.status.${sub.status}`, sub.status)}</Text>
+              {sub.expiresAt ? <Text tone="muted">{tr(sub.willRenew ? 'plus.renews' : 'plus.ends', { date: formatDate(sub.expiresAt) })}</Text> : null}
+              {sub.isSandbox ? <Text variant="caption" tone="muted">{tr('plus.sandbox')}</Text> : null}
+              <Button title={tr('plus.manage', { store: Platform.OS === 'ios' ? 'App Store' : 'Google Play' })} variant="secondary" size="sm" onPress={() => void openManageSubscription(sub.managementUrl, sub.productId)} />
             </>
           ) : grant ? (
-            <Text tone="muted">{grant.source === 'store' ? 'Store subscription' : 'Complimentary access'}{grant.expiresAt ? ` until ${new Date(grant.expiresAt).toLocaleDateString()}` : ''}.</Text>
+            <Text tone="muted">{tr(grant.source === 'store' ? 'plus.storeSub' : 'plus.complimentary')}{grant.expiresAt ? ` ${tr('plus.until', { date: formatDate(grant.expiresAt) })}` : ''}.</Text>
           ) : null}
         </Card>
       ) : (
@@ -133,12 +125,12 @@ export default function PlusScreen() {
               >
                 <View style={{ flex: 1, gap: 2 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
-                    <Text variant="heading">{p.period === 'P1M' ? 'Monthly' : 'Annual'}</Text>
-                    {p.badge ? <View style={[styles.badge, { backgroundColor: t.colors.accent }]}><Text variant="label" style={{ color: t.colors.onAccent, fontSize: 10 }}>{p.badge}</Text></View> : null}
+                    <Text variant="heading">{tr(p.period === 'P1M' ? 'plus.monthly' : 'plus.annual')}</Text>
+                    {p.badge ? <View style={[styles.badge, { backgroundColor: t.colors.accent }]}><Text variant="label" style={{ color: t.colors.onAccent, fontSize: 10 }}>{p.badge === 'Best value' ? tr('plus.bestValue') : p.badge}</Text></View> : null}
                   </View>
                   <Text tone="muted">
                     {(p.priceString ?? p.fallbackPrice.display) + ' / ' + periodLabel(p.period)}
-                    {!p.priceString ? ' (indicative)' : ''}
+                    {!p.priceString ? ` ${tr('plus.indicative')}` : ''}
                   </Text>
                   {p.introOffer ? <Text variant="caption" tone="accent">{p.introOffer}</Text> : null}
                 </View>
@@ -149,16 +141,16 @@ export default function PlusScreen() {
           {!canBuy ? (
             <Text variant="caption" tone="muted" center>
               {!plans.data?.purchasesEnabled
-                ? 'Purchases are not available yet. Everything else in Speow! works as usual.'
-                : 'Purchases need the App Store or Google Play version of the app.'}
+                ? tr('plus.unavailable')
+                : tr('plus.needStore')}
             </Text>
           ) : null}
-          {pending ? <Text variant="caption" tone="muted" center>Waiting for the store to confirm your purchase. You can leave this screen.</Text> : null}
+          {pending ? <Text variant="caption" tone="muted" center>{tr('plus.waiting')}</Text> : null}
         </View>
       )}
 
       <Button
-        title="Restore purchases"
+        title={tr('plus.restore')}
         variant="ghost"
         loading={busy === 'restore'}
         disabled={!plans.data?.purchasesEnabled}
@@ -172,12 +164,12 @@ export default function PlusScreen() {
         }}
       />
       <Text variant="caption" tone="muted" center>
-        Subscriptions renew automatically until cancelled. Cancel anytime in your {Platform.OS === 'ios' ? 'App Store' : 'Google Play'} account settings at least 24 hours before renewal. Payment is charged to your store account.
+        {tr('plus.legal', { store: Platform.OS === 'ios' ? 'App Store' : 'Google Play' })}
       </Text>
       {LEGAL_URLS.terms || LEGAL_URLS.privacy ? (
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: space.lg }}>
-          {LEGAL_URLS.terms ? <Button title="Terms" variant="ghost" size="sm" onPress={() => void openBrowserAsync(LEGAL_URLS.terms)} /> : null}
-          {LEGAL_URLS.privacy ? <Button title="Privacy" variant="ghost" size="sm" onPress={() => void openBrowserAsync(LEGAL_URLS.privacy)} /> : null}
+          {LEGAL_URLS.terms ? <Button title={tr('plus.terms')} variant="ghost" size="sm" onPress={() => void openBrowserAsync(LEGAL_URLS.terms)} /> : null}
+          {LEGAL_URLS.privacy ? <Button title={tr('plus.privacy')} variant="ghost" size="sm" onPress={() => void openBrowserAsync(LEGAL_URLS.privacy)} /> : null}
         </View>
       ) : null}
     </Screen>

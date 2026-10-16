@@ -140,9 +140,9 @@ Local native builds (`npx expo run:ios|android`) need Xcode / Android Studio.
 | Expo Push Service, FCM, APNs | Free |
 | EAS Build / Submit | Free tier with limited monthly builds; paid plans for more/priority builds |
 | API hosting | One small container (~US$5–25/month) is enough for an early launch |
-| PostgreSQL | Managed small instance ~US$0–25/month at launch (data per user is tiny; avatars ≤512 KB live in the DB) |
+| PostgreSQL | Managed small instance ~US$0–25/month at launch (data per user is tiny) |
 
-No other paid services are used. Avatars are stored in Postgres to avoid object storage at launch; move them to S3-compatible storage with a CDN if the user base grows.
+No other paid services are used. Avatars are drawn in the app, so there is no file storage.
 
 ## Brand identifiers kept from the previous name
 
@@ -171,7 +171,7 @@ RevenueCat apps, regenerate push credentials and add the new scheme to
 
 **Verified in this environment**
 - Shared: 20 unit tests (entitlements, catalogs, WCAG contrast, personalization precedence, usernames).
-- Server: 55 integration tests against real PostgreSQL 16 (auth, sessions, profiles/avatars, friends, invites, blocks/mutes/reports, moderation, Speow send/idempotency/cooldowns/limits/no quota, activity, push decisions and token invalidation, premium enforcement, expiry/revocation, purchase sync/webhooks, outages, account deletion, retention, CORS, rate-limit bypass).
+- Server: 59 integration tests against real PostgreSQL 16 (auth, sessions, profiles, avatars, languages, per-Speow colors, friends, invites, blocks/mutes/reports, moderation, Speow send/idempotency/cooldowns/limits/no quota, activity, push decisions and token invalidation, premium enforcement, expiry/revocation, purchase sync/webhooks, outages, account deletion, retention, CORS, rate-limit bypass).
 - Mobile: 10 jest-expo tests (theme contrast fallback, deep-link allowlist, purchase error mapping, double-tap protection, idempotent retry, cooldown).
 - Typecheck and lint clean across workspaces; server production bundle builds and boots; iOS and Android JS bundles export; `expo prebuild` generates both native projects with sounds, channels, permissions and URL scheme.
 - UI exercised in a browser preview (react-native-web) against the live API: login, friends, Speow send animation, incoming Speow overlay via polling, activity, add friends, Plus screen, appearance (Dark + Light).

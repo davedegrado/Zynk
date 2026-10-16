@@ -9,6 +9,7 @@
 import Constants from 'expo-constants';
 import { Linking, Platform } from 'react-native';
 import type { EntitlementsResponse, PlanConfig } from '@zynk/shared';
+import { translate } from '../i18n';
 import { api } from './api';
 import { REVENUECAT_KEYS } from './config';
 import { keys, queryClient } from './query';
@@ -129,16 +130,16 @@ export function mapError(err: unknown): PurchaseOutcome {
   if (e.userCancelled || e.code === errorCodes?.PURCHASE_CANCELLED_ERROR) return { kind: 'cancelled' };
   if (e.code === errorCodes?.PAYMENT_PENDING_ERROR) return { kind: 'pending' };
   if (e.code === errorCodes?.PRODUCT_ALREADY_PURCHASED_ERROR) {
-    return { kind: 'error', message: 'You already own this. Tap "Restore purchases" to unlock it on this account.' };
+    return { kind: 'error', message: translate('purchase.alreadyOwned') };
   }
   if (e.code === errorCodes?.NETWORK_ERROR) return { kind: 'error', message: "Couldn't reach the store. Check your connection." };
-  if (e.code === errorCodes?.PURCHASE_NOT_ALLOWED_ERROR) return { kind: 'error', message: 'Purchases are not allowed on this device.' };
-  return { kind: 'error', message: e.message || 'The purchase could not be completed.' };
+  if (e.code === errorCodes?.PURCHASE_NOT_ALLOWED_ERROR) return { kind: 'error', message: translate('purchase.notAllowed') };
+  return { kind: 'error', message: e.message || translate('purchase.failed') };
 }
 
 export async function purchasePlan(plan: StorePlan): Promise<PurchaseOutcome> {
   const P = loadModule();
-  if (!P || !plan.pkg) return { kind: 'error', message: 'This plan is not available in the store yet.' };
+  if (!P || !plan.pkg) return { kind: 'error', message: translate('purchase.planUnavailable') };
   try {
     await P.purchasePackage(plan.pkg);
   } catch (err) {
@@ -157,7 +158,7 @@ export async function restorePurchases(): Promise<PurchaseOutcome> {
     }
   }
   const out = await verifyWithServer();
-  return out.kind === 'verifying' ? { kind: 'error', message: 'No active Speow Plus subscription was found for this account.' } : out;
+  return out.kind === 'verifying' ? { kind: 'error', message: translate('purchase.noneFound') } : out;
 }
 
 /** Opens the store's own subscription management screen. */

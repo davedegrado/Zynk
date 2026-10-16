@@ -2,10 +2,11 @@ import { useMutation } from '@tanstack/react-query';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
-import { hasFeature, REACTION_PACKS, reactionRef, type ZynkEvent } from '@zynk/shared';
+import { colorName, getBubbleColor, hasFeature, REACTION_PACKS, reactionRef, type ZynkEvent } from '@zynk/shared';
 import { Avatar, Button, Chip, EmptyState, ErrorState, Icon, Loading, Screen, Text, useToast } from '../../../components/ui';
 import { ReactionGlyph } from '../../../components/zynk/ReactionGlyph';
 import { useSendZynk } from '../../../components/zynk/useSendZynk';
+import { useI18n } from '../../../i18n';
 import { api, errorMessage } from '../../../lib/api';
 import { timeAgo } from '../../../lib/format';
 import { useActivity, useFeatures } from '../../../lib/hooks';
@@ -43,42 +44,47 @@ function ReactRow({ zynk, onDone }: { zynk: ZynkEvent; onDone: () => void }) {
 
 function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; highlighted: boolean; showActions: boolean }) {
   const t = useAppTheme();
+  const { t: tr, lang } = useI18n();
   const toast = useToast();
   const [reacting, setReacting] = useState(false);
-  const { send, sending } = useSendZynk(zynk.counterpart.id, { onSent: () => toast(`You sent ${zynk.counterpart.displayName} a Speow back!`, 'success') });
+  const { send, sending } = useSendZynk(zynk.counterpart.id, { onSent: () => toast(tr('activity.sentBack', { name: zynk.counterpart.displayName }), 'success') });
   const received = zynk.direction === 'received';
+  const name = zynk.counterpart.displayName;
+  const color = colorName(lang, zynk.bubbleColorId);
+  const swatch = getBubbleColor(zynk.bubbleColorId);
   const isNew = received && !zynk.seenAt;
   return (
     <View style={[styles.item, { backgroundColor: t.colors.surface, borderColor: highlighted || isNew ? t.colors.accent : t.colors.border }]}>
       <View style={styles.itemTop}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${zynk.counterpart.displayName}'s profile`} onPress={() => router.push(`/user/${zynk.counterpart.id}`)}>
+        <Pressable accessibilityRole="button" accessibilityLabel={tr('friends.openProfile', { name })} onPress={() => router.push(`/user/${zynk.counterpart.id}`)}>
           <Avatar user={zynk.counterpart} size={44} />
         </Pressable>
         <View style={{ flex: 1, gap: 2 }}>
           <Text variant="bodyStrong" numberOfLines={2}>
-            {received ? `${zynk.counterpart.displayName} sent you a Speow!` : `You sent ${zynk.counterpart.displayName} a Speow!`}
+            {received ? tr(color ? 'activity.receivedColor' : 'activity.received', { name, color: color ?? '' }) : tr(color ? 'activity.sentColor' : 'activity.sent', { name, color: color ?? '' })}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.xs }}>
+            {swatch ? <View style={[styles.colorDot, { backgroundColor: swatch.color, borderColor: t.colors.border }]} /> : null}
             <Icon name={received ? 'arrowIn' : 'arrowOut'} size={14} color={t.colors.textMuted} />
             <Text variant="caption" tone="muted">
               {timeAgo(zynk.createdAt)}
-              {!received ? (zynk.seenAt ? ' · Seen' : ' · Delivered') : ''}
+              {!received ? ` · ${tr(zynk.seenAt ? 'activity.seen' : 'activity.delivered')}` : ''}
             </Text>
-            {isNew ? <View style={[styles.dot, { backgroundColor: t.colors.accent }]} accessibilityLabel="New" /> : null}
+            {isNew ? <View style={[styles.dot, { backgroundColor: t.colors.accent }]} accessibilityLabel={tr('common.new')} /> : null}
           </View>
         </View>
         {zynk.reactionId ? <ReactionGlyph reactionId={zynk.reactionId} fallback={zynk.reactionFallback} size={36} /> : null}
       </View>
       {zynk.responseReactionId ? (
         <View style={styles.response}>
-          <Text variant="caption" tone="muted">{received ? 'You reacted' : `${zynk.counterpart.displayName} reacted`}</Text>
+          <Text variant="caption" tone="muted">{received ? tr('activity.youReacted') : tr('activity.theyReacted', { name })}</Text>
           <ReactionGlyph reactionId={zynk.responseReactionId} fallback={zynk.responseReactionFallback} size={24} />
         </View>
       ) : null}
       {received && showActions ? (
         <View style={styles.actions}>
-          <Button title="Speow back" icon="bolt" size="sm" onPress={() => send(null)} loading={sending} />
-          <Button title={reacting ? 'Close' : 'React'} size="sm" variant="secondary" onPress={() => setReacting((v) => !v)} />
+          <Button title={tr('activity.speowBack')} icon="bolt" size="sm" onPress={() => send(null)} loading={sending} />
+          <Button title={reacting ? tr('common.close') : tr('activity.react')} size="sm" variant="secondary" onPress={() => setReacting((v) => !v)} />
         </View>
       ) : null}
       {reacting ? <ReactRow zynk={zynk} onDone={() => setReacting(false)} /> : null}
@@ -87,6 +93,7 @@ function ActivityItem({ zynk, highlighted, showActions }: { zynk: ZynkEvent; hig
 }
 
 export default function ActivityScreen() {
+  const { t } = useI18n();
   const params = useLocalSearchParams<{ zynk?: string }>();
   const [filter, setFilter] = useState<Filter>('all');
   const activity = useActivity(filter);
@@ -142,10 +149,10 @@ export default function ActivityScreen() {
   };
 
   return (
-    <Screen edges={['top']} title="Activity" refreshControl={<RefreshControl refreshing={false} onRefresh={() => void activity.refetch()} />}>
+    <Screen edges={['top']} title={t('tabs.activity')} refreshControl={<RefreshControl refreshing={false} onRefresh={() => void activity.refetch()} />}>
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         {(['all', 'received', 'sent'] as const).map((f) => (
-          <Chip key={f} label={f === 'all' ? 'All' : f === 'received' ? 'Received' : 'Sent'} selected={filter === f} onPress={() => changeFilter(f)} />
+          <Chip key={f} label={t(f === 'all' ? 'activity.all' : f === 'received' ? 'activity.filterReceived' : 'activity.filterSent')} selected={filter === f} onPress={() => changeFilter(f)} />
         ))}
       </View>
       {activity.isLoading ? (
@@ -154,9 +161,9 @@ export default function ActivityScreen() {
         <ErrorState message={errorMessage(activity.error)} onRetry={() => activity.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
-          title={filter === 'sent' ? 'Nothing sent yet' : 'No Speows yet'}
-          body={filter === 'sent' ? 'Pick a friend and send your first Speow.' : "When friends send you a Speow, it'll show up here — even with notifications off."}
-          action="Your friends"
+          title={t(filter === 'sent' ? 'activity.emptySentTitle' : 'activity.emptyTitle')}
+          body={t(filter === 'sent' ? 'activity.emptySentBody' : 'activity.emptyBody')}
+          action={t('activity.emptyAction')}
           onAction={() => router.push('/')}
         />
       ) : (
@@ -164,7 +171,7 @@ export default function ActivityScreen() {
           {items.map((z) => (
             <ActivityItem key={z.id} zynk={z} highlighted={params.zynk === z.id} showActions={latestReceived.has(z.id) || params.zynk === z.id} />
           ))}
-          {nextBefore ? <Button title="Load older" variant="ghost" onPress={loadMore} loading={loadingMore} /> : null}
+          {nextBefore ? <Button title={t('activity.loadOlder')} variant="ghost" onPress={loadMore} loading={loadingMore} /> : null}
         </View>
       )}
     </Screen>
@@ -175,6 +182,7 @@ const styles = StyleSheet.create({
   item: { borderRadius: radius.lg, borderWidth: 1.5, padding: space.md, gap: space.md },
   itemTop: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   dot: { width: 8, height: 8, borderRadius: 4 },
+  colorDot: { width: 12, height: 12, borderRadius: 6, borderWidth: 1 },
   actions: { flexDirection: 'row', gap: space.sm },
   response: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginLeft: 56 },
   reactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs, padding: space.sm, borderRadius: radius.md },

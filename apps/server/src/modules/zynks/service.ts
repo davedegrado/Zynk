@@ -1,5 +1,6 @@
 import {
   DEFAULTS,
+  getBubbleColor,
   getEffect,
   getReaction,
   hasFeature,
@@ -92,6 +93,13 @@ export async function sendZynk(ctx: AppContext, senderId: string, input: SendInp
     }
     effectId = input.effectId;
   }
+  // Speow colors are free: any catalog color can be picked per send.
+  let bubbleColorId = prefs.bubbleColorId;
+  if (input.bubbleColorId) {
+    const color = getBubbleColor(input.bubbleColorId);
+    if (!color || color.retired) throw new ApiError('unknown_item', 'Unknown color', { fields: { bubbleColorId: 'Unknown color' } });
+    bubbleColorId = input.bubbleColorId;
+  }
   let soundId = prefs.outgoingSoundId;
   const paired = getEffect(effectId)?.pairedSoundId;
   if (paired && soundId === DEFAULTS.soundId && hasFeature(features, 'custom_sounds')) soundId = paired;
@@ -126,7 +134,7 @@ export async function sendZynk(ctx: AppContext, senderId: string, input: SendInp
     const { rows } = await tx.query<{ id: string }>(
       `insert into zynks (sender_id, recipient_id, client_nonce, sound_id, effect_id, bubble_color_id, reaction_id, reaction_fallback, created_at)
        values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`,
-      [senderId, input.recipientId, input.clientNonce, soundId, effectId, prefs.bubbleColorId, input.reactionId ?? null, reactionFallback, t],
+      [senderId, input.recipientId, input.clientNonce, soundId, effectId, bubbleColorId, input.reactionId ?? null, reactionFallback, t],
     );
     return { id: rows[0]!.id, duplicate: false };
   });

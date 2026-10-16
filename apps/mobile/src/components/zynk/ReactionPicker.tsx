@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { hasFeature, REACTION_PACKS, reactionRef } from '@zynk/shared';
+import { useI18n } from '../../i18n';
 import { useFeatures } from '../../lib/hooks';
 import { radius, space } from '../../theme/tokens';
 import { useAppTheme } from '../../theme/ThemeProvider';
@@ -17,6 +18,7 @@ interface Props {
 /** Structured reactions only: one predefined item per Speow, never free text. */
 export function ReactionPicker({ value, onChange, onLocked }: Props) {
   const t = useAppTheme();
+  const { t: tr, td } = useI18n();
   const features = useFeatures();
   const [packId, setPackId] = useState(REACTION_PACKS[0]!.id);
   const pack = REACTION_PACKS.find((p) => p.id === packId)!;
@@ -25,14 +27,14 @@ export function ReactionPicker({ value, onChange, onLocked }: Props) {
     <View style={{ gap: space.md }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: space.sm }}>
         {REACTION_PACKS.filter((p) => !p.retired).map((p) => (
-          <Chip key={p.id} label={p.name} selected={p.id === packId} onPress={() => setPackId(p.id)} />
+          <Chip key={p.id} label={td(`pack.${p.id}.name`, p.name)} selected={p.id === packId} onPress={() => setPackId(p.id)} />
         ))}
       </ScrollView>
       {locked ? (
         <Pressable onPress={onLocked} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
           <PlusBadge locked />
           <Text variant="caption" tone="muted" style={{ flex: 1 }}>
-            Preview — {pack.description} Unlock with Speow Plus.
+            {tr('reactions.preview', { description: td(`pack.${pack.id}.desc`, pack.description) })}
           </Text>
         </Pressable>
       ) : null}
@@ -44,7 +46,7 @@ export function ReactionPicker({ value, onChange, onLocked }: Props) {
             <Pressable
               key={ref}
               accessibilityRole="button"
-              accessibilityLabel={`${item.label}${locked ? ', Speow Plus' : ''}`}
+              accessibilityLabel={`${td(`reaction.${item.id}`, item.label)}${locked ? ', Speow Plus' : ''}`}
               accessibilityState={{ selected }}
               onPress={() => (locked ? onLocked() : onChange(selected ? null : ref))}
               style={[

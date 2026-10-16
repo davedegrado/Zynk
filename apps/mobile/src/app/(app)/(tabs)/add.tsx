@@ -6,6 +6,7 @@ import { Pressable, Share, StyleSheet, View } from 'react-native';
 import type { UserProfile } from '@zynk/shared';
 import { RelationshipAction, refreshSocial as refresh } from '../../../components/RelationshipAction';
 import { Avatar, Button, Card, IconButton, Input, Loading, Screen, Text, useConfirm, useToast } from '../../../components/ui';
+import { translate, useI18n } from '../../../i18n';
 import { api, errorMessage } from '../../../lib/api';
 import { getInviteBaseUrl } from '../../../lib/config';
 import { useFriendRequests, useInvite } from '../../../lib/hooks';
@@ -22,7 +23,7 @@ function useDebounced<T>(value: T, ms: number) {
   return v;
 }
 
-function UserRow({ user, right }: { user: Pick<UserProfile, 'id' | 'displayName' | 'username' | 'avatarUrl'>; right: React.ReactNode }) {
+function UserRow({ user, right }: { user: Pick<UserProfile, 'id' | 'displayName' | 'username' | 'avatar'>; right: React.ReactNode }) {
   const t = useAppTheme();
   return (
     <Pressable accessibilityRole="button" onPress={() => router.push(`/user/${user.id}`)} style={[styles.row, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
@@ -37,6 +38,7 @@ function UserRow({ user, right }: { user: Pick<UserProfile, 'id' | 'displayName'
 }
 
 function InviteCard() {
+  const { t } = useI18n();
   const toast = useToast();
   const confirm = useConfirm();
   const invite = useInvite();
@@ -45,22 +47,22 @@ function InviteCard() {
     mutationFn: api.rotateInvite,
     onSuccess: (d) => {
       queryClient.setQueryData(keys.invite, d);
-      toast('New invite link created. The old one no longer works.', 'success');
+      toast(translate('invite.rotated'), 'success');
     },
   });
   return (
     <Card style={{ gap: space.md }}>
-      <Text variant="heading">Invite friends</Text>
-      <Text tone="muted">Share your personal link. Anyone who opens it can send you a friend request — no contacts needed.</Text>
+      <Text variant="heading">{t('invite.title')}</Text>
+      <Text tone="muted">{t('invite.body')}</Text>
       {url ? (
         <Text variant="caption" selectable numberOfLines={1}>{url}</Text>
       ) : (
         <Loading size={28} />
       )}
       <View style={{ flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' }}>
-        <Button title="Share link" icon="share" size="sm" disabled={!url} onPress={() => url && void Share.share({ message: `Send me a Speow! ${url}`, url })} />
+        <Button title={t('invite.share')} icon="share" size="sm" disabled={!url} onPress={() => url && void Share.share({ message: t('invite.shareMessage', { url }), url })} />
         <Button
-          title="Copy"
+          title={t('invite.copy')}
           icon="link"
           size="sm"
           variant="secondary"
@@ -68,15 +70,15 @@ function InviteCard() {
           onPress={async () => {
             if (!url) return;
             await Clipboard.setStringAsync(url);
-            toast('Link copied', 'success');
+            toast(t('invite.copied'), 'success');
           }}
         />
         <Button
-          title="Reset"
+          title={t('invite.reset')}
           size="sm"
           variant="ghost"
           onPress={async () => {
-            if (await confirm({ title: 'Reset invite link?', body: 'Your current link will stop working. Pending requests stay.', confirm: 'Reset' })) rotate.mutate();
+            if (await confirm({ title: t('invite.resetTitle'), body: t('invite.resetBody'), confirm: t('invite.reset') })) rotate.mutate();
           }}
         />
       </View>
@@ -85,6 +87,7 @@ function InviteCard() {
 }
 
 export default function AddScreen() {
+  const { t: tt } = useI18n();
   const t = useAppTheme();
   const toast = useToast();
   const [term, setTerm] = useState('');
@@ -95,7 +98,7 @@ export default function AddScreen() {
   const respond = useMutation({
     mutationFn: async ({ id, accept }: { id: string; accept: boolean }) => (accept ? api.acceptRequest(id) : api.rejectRequest(id)),
     onSuccess: (_d, v) => {
-      toast(v.accept ? 'Friend added!' : 'Request declined', v.accept ? 'success' : 'info');
+      toast(tt(v.accept ? 'requests.added' : 'requests.declined'), v.accept ? 'success' : 'info');
       refresh();
     },
     onError: (e) => toast(errorMessage(e), 'error'),
@@ -106,8 +109,8 @@ export default function AddScreen() {
   const outgoing = requests.data?.outgoing ?? [];
 
   return (
-    <Screen edges={['top']} title="Add friends">
-      <Input icon="search" placeholder="Search by username" autoCapitalize="none" autoCorrect={false} value={term} onChangeText={setTerm} returnKeyType="search" />
+    <Screen edges={['top']} title={tt('add.title')}>
+      <Input icon="search" placeholder={tt('add.search')} autoCapitalize="none" autoCorrect={false} value={term} onChangeText={setTerm} returnKeyType="search" />
       {q.length >= 2 ? (
         <View style={{ gap: space.sm }}>
           {search.isLoading ? (
@@ -115,22 +118,22 @@ export default function AddScreen() {
           ) : search.data?.users.length ? (
             search.data.users.map((u) => <UserRow key={u.id} user={u} right={<RelationshipAction profile={u} />} />)
           ) : (
-            <Text tone="muted">No one with a username starting with “{q}”.</Text>
+            <Text tone="muted">{tt('add.noResults', { q })}</Text>
           )}
         </View>
       ) : null}
 
       {incoming.length ? (
         <View style={{ gap: space.sm }}>
-          <Text variant="label" tone="muted">Requests for you</Text>
+          <Text variant="label" tone="muted">{tt('add.incoming')}</Text>
           {incoming.map((r) => (
             <UserRow
               key={r.id}
               user={r.user}
               right={
                 <View style={{ flexDirection: 'row', gap: space.xs }}>
-                  <IconButton name="close" label={`Decline ${r.user.displayName}`} color={t.colors.textMuted} onPress={() => respond.mutate({ id: r.id, accept: false })} />
-                  <Button title="Accept" size="sm" onPress={() => respond.mutate({ id: r.id, accept: true })} />
+                  <IconButton name="close" label={tt('requests.decline', { name: r.user.displayName })} color={t.colors.textMuted} onPress={() => respond.mutate({ id: r.id, accept: false })} />
+                  <Button title={tt('requests.accept')} size="sm" onPress={() => respond.mutate({ id: r.id, accept: true })} />
                 </View>
               }
             />
@@ -142,9 +145,9 @@ export default function AddScreen() {
 
       {outgoing.length ? (
         <View style={{ gap: space.sm }}>
-          <Text variant="label" tone="muted">Sent requests</Text>
+          <Text variant="label" tone="muted">{tt('add.outgoing')}</Text>
           {outgoing.map((r) => (
-            <UserRow key={r.id} user={r.user} right={<Button title="Cancel" size="sm" variant="ghost" onPress={() => cancel.mutate(r.id)} />} />
+            <UserRow key={r.id} user={r.user} right={<Button title={tt('common.cancel')} size="sm" variant="ghost" onPress={() => cancel.mutate(r.id)} />} />
           ))}
         </View>
       ) : null}

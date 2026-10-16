@@ -32,14 +32,26 @@ export const passwordSchema = z
   .max(128, 'Passwords are at most 128 characters');
 
 const catalogId = z.string().regex(/^[a-z0-9_]{1,40}$/);
+function catalogIdShort() {
+  return z.string().regex(/^[a-z0-9_]{1,32}$/);
+}
 export const reactionRefSchema = z.string().regex(/^[a-z0-9_]{1,32}:[a-z0-9_]{1,32}$/);
 
 // ------------------------------------------------------------------ auth
+
+/** Avatars are drawn characters + a background color from the catalog (no photo uploads). */
+export const avatarSchema = z.object({ id: catalogIdShort(), color: catalogIdShort() });
+
+export const LANGUAGES = ['en', 'it'] as const;
+export type Language = (typeof LANGUAGES)[number];
+export const languageSchema = z.enum(LANGUAGES);
 
 export const registerSchema = z.object({
   username: usernameSchema,
   displayName: displayNameSchema,
   password: passwordSchema,
+  avatar: avatarSchema.optional(),
+  language: languageSchema.optional(),
 });
 export const loginSchema = z.object({
   username: z.string().trim().toLowerCase().min(1).max(64),
@@ -51,8 +63,8 @@ export const changePasswordSchema = z.object({
 });
 export const deleteAccountSchema = z.object({ password: z.string().min(1).max(128) });
 export const updateProfileSchema = z
-  .object({ displayName: displayNameSchema.optional(), username: usernameSchema.optional() })
-  .refine((v) => v.displayName !== undefined || v.username !== undefined, 'Nothing to update');
+  .object({ displayName: displayNameSchema.optional(), username: usernameSchema.optional(), avatar: avatarSchema.optional() })
+  .refine((v) => v.displayName !== undefined || v.username !== undefined || v.avatar !== undefined, 'Nothing to update');
 
 // ------------------------------------------------------------------ social
 
@@ -82,6 +94,8 @@ export const sendZynkSchema = z.object({
   reactionId: reactionRefSchema.nullish(),
   /** Optional per-send effect; defaults to the sender's selected effect. */
   effectId: catalogId.nullish(),
+  /** Optional per-send Speow color (free); defaults to the sender's default color. */
+  bubbleColorId: catalogId.nullish(),
 });
 export const activityQuerySchema = z.object({
   direction: z.enum(['all', 'received', 'sent']).default('all'),
@@ -104,6 +118,7 @@ export const preferencesPatchSchema = z
     showSenderStyle: z.boolean(),
     reduceMotion: z.boolean(),
     appearance: z.enum(['theme', 'system']),
+    language: languageSchema,
     incomingSoundId: catalogId,
     outgoingSoundId: catalogId,
     themeId: catalogId,
@@ -126,12 +141,18 @@ export const registerDeviceSchema = z.object({
 
 // ------------------------------------------------------------------ responses
 
+export interface Avatar {
+  /** Character id from AVATARS. */
+  id: string;
+  /** Background color id from AVATAR_COLORS. */
+  color: string;
+}
+
 export interface PublicUser {
   id: string;
   username: string;
   displayName: string;
-  /** Relative path to fetch the avatar (auth required), or null. */
-  avatarUrl: string | null;
+  avatar: Avatar;
 }
 
 export interface Me extends PublicUser {
@@ -212,6 +233,8 @@ export interface Preferences {
   showSenderStyle: boolean;
   reduceMotion: boolean;
   appearance: 'theme' | 'system';
+  /** UI + notification language. */
+  language: Language;
   incomingSoundId: string;
   outgoingSoundId: string;
   themeId: string;

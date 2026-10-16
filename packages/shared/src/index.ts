@@ -5,3 +5,5 @@ export * from './catalog';
 export * from './color';
 export * from './personalization';
 export * from './api';
+export * from './messages';
+export * from './avatar-art';
