@@ -32,6 +32,8 @@ jobs:
       # Test builds may switch server from the welcome screen.
       EXPO_PUBLIC_ALLOW_SERVER_OVERRIDE: "1"
       ALLOW_CLEARTEXT: "0"
+      # Push notifications: Expo project id (repo variable) + Firebase config (repo secret).
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
       NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +51,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - run: npm ci
+
+      - name: Firebase config for push notifications
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES" ]; then
+            printf '%s' "$GOOGLE_SERVICES" > apps/mobile/google-services.json
+            echo "GOOGLE_SERVICES_JSON=./google-services.json" >> "$GITHUB_ENV"
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON secret not set: the APK will have no push notifications"
+          fi
 
       - name: Generate native Android project
         working-directory: apps/mobile

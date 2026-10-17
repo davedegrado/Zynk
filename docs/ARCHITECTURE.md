@@ -3,7 +3,7 @@
 > **Naming note.** The product is **Speow!** (core action: *a Speow*). The codebase
 > predates the rebrand and keeps its original internal identifiers — `zynks` table,
 > `/zynks` routes, `@zynk/*` packages, `Zynk*` components, `zynk_*` sound files,
-> `ZYNK_*` env vars, the `zynk://` URL scheme and the `app.zynk` bundle id. They are
+> `ZYNK_*` env vars, the `zynk://` URL scheme. They are
 > persistent or internal and are deliberately not renamed; see
 > [SETUP.md](SETUP.md#brand-identifiers-kept-from-the-previous-name).
 

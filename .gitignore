@@ -13,3 +13,7 @@ apps/mobile/android/
 apps/mobile/expo-env.d.ts
 *.tsbuildinfo
 .DS_Store
+
+# Firebase config (provided by CI from a secret)
+google-services.json
+GoogleService-Info.plist

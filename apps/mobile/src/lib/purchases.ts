@@ -166,6 +166,6 @@ export async function openManageSubscription(managementUrl: string | null, produ
   const fallback =
     Platform.OS === 'ios'
       ? 'https://apps.apple.com/account/subscriptions'
-      : `https://play.google.com/store/account/subscriptions${productId ? `?sku=${encodeURIComponent(productId.split(':')[0]!)}&package=${Constants.expoConfig?.android?.package ?? 'app.zynk'}` : ''}`;
+      : `https://play.google.com/store/account/subscriptions${productId ? `?sku=${encodeURIComponent(productId.split(':')[0]!)}&package=${Constants.expoConfig?.android?.package ?? 'app.speow'}` : ''}`;
   await Linking.openURL(managementUrl || fallback).catch(() => Linking.openURL(fallback));
 }

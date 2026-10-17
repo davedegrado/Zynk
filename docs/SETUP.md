@@ -48,10 +48,10 @@ unavailable). This page lists exactly what to configure for each.
 | `EXPO_PUBLIC_TERMS_URL` / `EXPO_PUBLIC_PRIVACY_URL` | Shown on the Plus screen (App Review requires them for subscriptions) |
 | `EAS_PROJECT_ID` | Required for Expo push tokens in builds (`eas init` prints it) |
 | `GOOGLE_SERVICES_JSON` | Path to `google-services.json` (FCM) for Android builds |
-| `APP_VARIANT=development` | Separate bundle id `app.zynk.dev` for dev builds |
+| `APP_VARIANT=development` | Separate bundle id `app.speow.dev` for dev builds |
 | `ZYNK_LINK_DOMAIN` | Optional: adds iOS `applinks:` for universal links |
 
-Bundle id / package: `app.zynk` (change in `app.config.ts` before the first store upload).
+Bundle id / package: `app.speow` (change in `app.config.ts` before the first store upload).
 
 ## 2. Database
 
@@ -64,7 +64,7 @@ Requires the `citext` extension (available on all major managed Postgres offerin
 ## 3. Push notifications (Expo → FCM / APNs)
 
 1. `cd apps/mobile && npx eas-cli@latest init` → sets the EAS project; put the id in `EAS_PROJECT_ID`.
-2. **Android / FCM**: create a Firebase project, add Android app `app.zynk`, download `google-services.json`, set `GOOGLE_SERVICES_JSON=./google-services.json`. Upload the FCM v1 service-account key to EAS: `npx eas-cli@latest credentials` → Android → Push Notifications (FCM V1).
+2. **Android / FCM**: create a Firebase project, add Android app `app.speow`, download `google-services.json`, set `GOOGLE_SERVICES_JSON=./google-services.json`. Upload the FCM v1 service-account key to EAS: `npx eas-cli@latest credentials` → Android → Push Notifications (FCM V1).
 3. **iOS / APNs**: requires an Apple Developer account. `eas build` / `eas credentials` creates the APNs key automatically.
 4. Server: `PUSH_PROVIDER=expo` (and `EXPO_ACCESS_TOKEN` if you enable enhanced security).
 5. Test on a **physical device** with a development or preview build (push doesn't work in simulators/emulators without Play services, nor in Expo Go for this app).
@@ -77,7 +77,7 @@ RevenueCat was chosen over hand-rolled StoreKit/Play receipt validation: one SDK
 
 **App Store Connect**
 1. Paid Applications Agreement, tax and banking completed.
-2. Create the app (`app.zynk`), a subscription group "Speow Plus", products `zynk_plus_monthly` (1 month, €1.99) and `zynk_plus_annual` (1 year, €14.99), with localized names/descriptions and review screenshots.
+2. Create the app (`app.speow`), a subscription group "Speow Plus", products `zynk_plus_monthly` (1 month, €1.99) and `zynk_plus_annual` (1 year, €14.99), with localized names/descriptions and review screenshots.
 3. Create an In-App Purchase key (App Store Connect API / IAP key) and upload it to RevenueCat; set the App Store Server Notifications URL to RevenueCat's.
 4. Create sandbox testers.
 
@@ -152,8 +152,6 @@ break existing installs, credentials, store records, links or data:
 
 | Identifier | Value | Why it stays |
 |---|---|---|
-| iOS bundle id / Android package | `app.zynk` (`app.zynk.dev`) | Changing it creates a *new* app: existing installs, App Store / Play listings, APNs/FCM credentials, RevenueCat app config and Keychain data would not carry over |
-| EAS slug | `zynk` | Tied to the EAS project and push credentials |
 | URL scheme | `zynk://` | Already-shared invite links, push payload deep links |
 | Store product ids | `zynk_plus_monthly`, `zynk_plus_annual`, `zynk_plus:*` | Store product ids can never be renamed; display names can |
 | Sound files / Android channel ids | `zynk_*.wav`, channel `zynk_<sound>` | Android channel ids are immutable on installed devices; APNs payloads reference file names |

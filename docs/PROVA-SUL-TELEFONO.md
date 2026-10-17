@@ -39,7 +39,7 @@ Per provare uno Speow vero servono due account amici (es. due telefoni): aggiung
 
 ## Cosa non c'è in questa build di prova
 
-- **Notifiche push**: servono Firebase (Android) e un account Apple. Gli Speow arrivano comunque con l'app aperta.
+- **Notifiche push su iPhone**: serve un account Apple. Su Android funzionano con Firebase + Expo (vedi sotto).
 - **Acquisti Plus**: servono gli store e RevenueCat.
 - **iPhone**: serve un account Apple Developer (99 $/anno) per installare app fuori dall'App Store.
 
@@ -50,3 +50,12 @@ Per provare uno Speow vero servono due account amici (es. due telefoni): aggiung
 | L'app dice "Can't reach…" | Il server gratuito forse dormiva: riprova dopo un minuto. Controlla che `…/health` risponda e che su Render `DATABASE_URL` sia impostata |
 | Android blocca l'installazione | Impostazioni → App → (il tuo browser) → Installa app sconosciute → consenti |
 | "App non installata" | Disinstalla una versione precedente di Speow! (firma diversa) e riprova |
+
+## Notifiche push su Android (Firebase + Expo, gratis)
+
+1. **Firebase**: progetto `speow`, app Android con pacchetto `app.speow`; scarica `google-services.json` e, da Impostazioni progetto → Account di servizio, genera la chiave privata.
+2. **Expo** (expo.dev): progetto `speow`; in Credentials → Android carica la chiave privata come *FCM V1 service account key*.
+3. **GitHub** → Settings → Secrets and variables → Actions: secret `GOOGLE_SERVICES_JSON` (contenuto del file) e variabile `EAS_PROJECT_ID` (Project ID di Expo). Poi rilancia il workflow *Android test APK*.
+4. **Render** → servizio `speow-api` → **Environment**: `PUSH_PROVIDER` = `expo` (il blueprint lo imposta già).
+
+Il primo APK con `app.speow` è un'app diversa da quella vecchia (`app.zynk`): disinstalla la vecchia.

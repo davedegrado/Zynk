@@ -10,13 +10,13 @@ const IS_DEV = process.env.APP_VARIANT === 'development';
 // (EAS can't write it into a dynamic config automatically). EAS_PROJECT_ID env also works.
 const EAS_PROJECT_ID = process.env.EAS_PROJECT_ID || '';
 
-// Brand: Speow! Persistent identifiers below (slug, scheme, bundle id/package,
-// sound file names) intentionally keep their original `zynk` values — changing
-// them would break existing installs, push credentials, store records and links.
+// Brand: Speow! The bundle id / package is `app.speow` (registered in Firebase).
+// The slug matches the Expo project. Scheme and sound file names keep their original `zynk` values — changing
+// them would break push channels and invite links.
 
 const config: ExpoConfig = {
   name: IS_DEV ? 'Speow! (dev)' : 'Speow!',
-  slug: 'zynk',
+  slug: 'speow',
   scheme: 'zynk',
   version: '0.1.0',
   orientation: 'portrait',
@@ -24,7 +24,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   backgroundColor: '#111111',
   ios: {
-    bundleIdentifier: IS_DEV ? 'app.zynk.dev' : 'app.zynk',
+    bundleIdentifier: IS_DEV ? 'app.speow.dev' : 'app.speow',
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -32,7 +32,7 @@ const config: ExpoConfig = {
     associatedDomains: process.env.ZYNK_LINK_DOMAIN ? [`applinks:${process.env.ZYNK_LINK_DOMAIN}`] : undefined,
   },
   android: {
-    package: IS_DEV ? 'app.zynk.dev' : 'app.zynk',
+    package: IS_DEV ? 'app.speow.dev' : 'app.speow',
     adaptiveIcon: {
       backgroundColor: '#111111',
       foregroundImage: './assets/images/android-icon-foreground.png',
